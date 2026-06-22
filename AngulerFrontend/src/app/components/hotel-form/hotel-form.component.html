@@ -1,0 +1,153 @@
+<div class="form-container">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>{{ isEditMode ? 'Edit Hotel' : 'Create New Hotel' }}</mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+      <form [formGroup]="hotelForm" (ngSubmit)="onSubmit()">
+        
+        <!-- Basic Info Section -->
+        <h3 class="section-title">Basic Information</h3>
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Hotel Name</mat-label>
+            <input matInput formControlName="hotelName" placeholder="Enter Hotel Name">
+            <mat-error *ngIf="hotelForm.get('hotelName')?.hasError('required')">Hotel name is required</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Accommodation Type</mat-label>
+            <mat-select formControlName="accommodationType">
+              <mat-option value="Hotel">Hotel</mat-option>
+              <mat-option value="Resort">Resort</mat-option>
+              <mat-option value="Motel">Motel</mat-option>
+              <mat-option value="GuestHouse">Guest House</mat-option>
+              <mat-option value="Villa">Villa</mat-option>
+            </mat-select>
+            <mat-error *ngIf="hotelForm.get('accommodationType')?.hasError('required')">Type is required</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Star Rating</mat-label>
+            <input matInput type="number" formControlName="starRating" min="1" max="5">
+          </mat-form-field>
+        </div>
+
+        <!-- Location Section -->
+        <h3 class="section-title">Location</h3>
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>City Area</mat-label>
+            <input matInput formControlName="cityArea">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Neighborhood</mat-label>
+            <input matInput formControlName="neighborhood">
+          </mat-form-field>
+        </div>
+        
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Full Address</mat-label>
+          <textarea matInput formControlName="address" rows="2"></textarea>
+        </mat-form-field>
+
+        <!-- Details Section -->
+        <h3 class="section-title">Details & Policy</h3>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Description</mat-label>
+          <textarea matInput formControlName="description" rows="3"></textarea>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Policy</mat-label>
+          <textarea matInput formControlName="policy" rows="3"></textarea>
+        </mat-form-field>
+
+        <div class="form-row align-center">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Contact Email</mat-label>
+            <input matInput formControlName="hotelEmail" type="email">
+            <mat-error *ngIf="hotelForm.get('hotelEmail')?.hasError('email')">Invalid email</mat-error>
+          </mat-form-field>
+
+          <mat-slide-toggle formControlName="isActive" color="primary">
+            Active Status
+          </mat-slide-toggle>
+        </div>
+
+        <!-- Promotional & Marketing Section -->
+        <h3 class="section-title">Promotional & Marketing</h3>
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Discount Percentage (%)</mat-label>
+            <input matInput type="number" formControlName="discountPercent" min="0" max="100" placeholder="e.g. 55">
+            <span matSuffix>% off</span>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Extra Discount Text</mat-label>
+            <input matInput formControlName="extraDiscountText" placeholder="e.g. *Extra 3% discount for bKash payment.">
+          </mat-form-field>
+        </div>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Amenities (Comma separated)</mat-label>
+          <input matInput formControlName="amenities" placeholder="e.g. Garden, In-room Accessibility, Air Conditioning">
+          <mat-hint>Separate multiple amenities with a comma</mat-hint>
+        </mat-form-field>
+
+        <div class="form-row py-2" style="display: flex; gap: 24px; margin-bottom: 16px;">
+          <mat-slide-toggle formControlName="isCoupleFriendly" color="accent">
+            Couple Friendly
+          </mat-slide-toggle>
+
+          <mat-slide-toggle formControlName="hasGetPoints" color="primary">
+            Offer Points ("Get Points")
+          </mat-slide-toggle>
+        </div>
+
+        <mat-divider class="my-3"></mat-divider>
+
+        <!-- Rooms Section -->
+        <div class="section-header">
+          <h3>Rooms ({{rooms.length}})</h3>
+          <button mat-stroked-button color="primary" type="button" (click)="openRoomModal()">
+            <mat-icon>meeting_room</mat-icon> Manage Rooms
+          </button>
+        </div>
+
+        <mat-divider class="my-3"></mat-divider>
+
+        <!-- Images Section -->
+        <div class="section-header">
+          <h3>Hotel Images ({{hotelImages.length}})</h3>
+          <div>
+            <input type="file" #fileInput multiple accept="image/*" (change)="onFileSelected($event)" style="display: none;">
+            <button mat-stroked-button color="accent" type="button" (click)="fileInput.click()">
+              <mat-icon>add_photo_alternate</mat-icon> Upload Images
+            </button>
+          </div>
+        </div>
+
+        <div class="image-gallery" *ngIf="hotelImages.length > 0">
+          <div class="image-item" *ngFor="let pic of hotelImages; let i = index">
+            <!-- Ensure correct backend URL is used here in a real scenario by prepending API base -->
+            <img [src]="'http://localhost:5246' + pic.hotelImageUrl" alt="Hotel Image">
+            <button mat-icon-button color="warn" type="button" class="delete-btn" (click)="removePicture(i)">
+              <mat-icon>close</mat-icon>
+            </button>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button mat-button type="button" (click)="cancel()">Cancel</button>
+          <button mat-raised-button color="primary" type="submit" [disabled]="!hotelForm.valid">
+            {{ isEditMode ? 'Update' : 'Save' }} Hotel
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

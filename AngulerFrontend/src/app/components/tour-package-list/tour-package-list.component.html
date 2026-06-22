@@ -1,0 +1,102 @@
+<div class="container-fluid mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold">Tour Packages Management</h2>
+    <button mat-raised-button color="primary" routerLink="/packages/new">
+      <mat-icon>add</mat-icon> Add New Package
+    </button>
+  </div>
+
+  <mat-card class="shadow-sm">
+    <table mat-table [dataSource]="packages" class="w-100">
+
+      <!-- ID Column -->
+      <ng-container matColumnDef="packageId">
+        <th mat-header-cell *matHeaderCellDef> ID </th>
+        <td mat-cell *matCellDef="let element"> {{element.packageId}} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="packageCode">
+        <th mat-header-cell *matHeaderCellDef> Code </th>
+        <td mat-cell *matCellDef="let element"> {{element.packageCode}} </td>
+      </ng-container>
+
+      <!-- Name Column -->
+      <ng-container matColumnDef="packageTitle">
+        <th mat-header-cell *matHeaderCellDef> Package Name </th>
+        <td mat-cell *matCellDef="let element">
+          <span class="fw-bold">{{element.packageTitle}}</span>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="packagePrice">
+        <th mat-header-cell *matHeaderCellDef> Price </th>
+        <td mat-cell *matCellDef="let element" class="fw-bold text-success"> ৳{{(element.packagePrice - element.discount + element.markUpAmount) | number:'1.2-2'}}
+        </td>
+      </ng-container>
+
+      <!-- Vacancy Column -->
+      <ng-container matColumnDef="availableVacancy">
+        <th mat-header-cell *matHeaderCellDef> Vacancy </th>
+        <td mat-cell *matCellDef="let element">
+          <span class="badge" [ngClass]="element.availableVacancy > 0 ? 'bg-info' : 'bg-danger'">
+            {{element.availableVacancy}} / {{element.maxTourist}}
+          </span>
+        </td>
+      </ng-container>
+
+      <!-- Assigned Agent Column -->
+      <ng-container matColumnDef="assignedAgent">
+        <th mat-header-cell *matHeaderCellDef> Assigned Agent </th>
+        <td mat-cell *matCellDef="let element">
+          <span *ngIf="element.assignedAgentName"
+            class="badge bg-primary bg-opacity-10 text-primary border border-primary-subtle px-2 py-1 rounded-pill">
+            <mat-icon style="font-size:13px;vertical-align:middle;width:13px;height:13px;"
+              class="me-1">person</mat-icon>
+            {{element.assignedAgentName}}
+          </span>
+          <span *ngIf="!element.assignedAgentName" class="text-muted fst-italic"
+            style="font-size:0.82rem;">Unassigned</span>
+        </td>
+      </ng-container>
+
+      <!-- Status Column -->
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef> Status </th>
+        <td mat-cell *matCellDef="let element">
+          <span class="badge bg-success" *ngIf="element.isActive">Active</span>
+          <span class="badge bg-secondary" *ngIf="!element.isActive">Draft</span>
+        </td>
+      </ng-container>
+
+      <!-- Actions Column -->
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef class="text-end"> Actions </th>
+        <td mat-cell *matCellDef="let element" class="text-end">
+          <button mat-icon-button style="color:#0288d1" (click)="viewPackage(element.packageId)" title="View Details">
+            <mat-icon>visibility</mat-icon>
+          </button>
+          <button mat-icon-button style="color:#2e7d32" (click)="trackPackage(element.packageId)" title="Live Tracking">
+            <mat-icon>track_changes</mat-icon>
+          </button>
+          <button mat-icon-button color="accent" (click)="openAssignAgentModal(element)" title="Assign Agent">
+            <mat-icon>person_add</mat-icon>
+          </button>
+          <button mat-icon-button color="primary" (click)="editPackage(element.packageId)" title="Edit">
+            <mat-icon>edit</mat-icon>
+          </button>
+
+          <button mat-icon-button color="warn" (click)="deletePackage(element.packageId)" title="Delete">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+
+    <div *ngIf="packages.length === 0" class="p-4 text-center text-muted">
+      No tour packages found. Click "Add New Package" to create one.
+    </div>
+  </mat-card>
+</div>

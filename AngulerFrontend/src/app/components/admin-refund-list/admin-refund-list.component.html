@@ -1,0 +1,152 @@
+<div class="refund-container">
+  <div class="header-actions">
+    <h2>Client Refund Requests</h2>
+    <button class="btn-refresh" (click)="loadRefunds()" [disabled]="loading">
+      <i class="fas fa-sync-alt"></i> Refresh
+    </button>
+  </div>
+
+  <div *ngIf="successMessage" class="alert alert-success">{{ successMessage }}</div>
+  <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+
+  <div class="table-responsive">
+    <table class="table custom-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Type</th>
+          <th>Booking ID</th>
+          <th>User ID</th>
+          <th>Reason</th>
+          <th>Amount</th>
+          <th>Date Requested</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngIf="loading">
+          <td colspan="9" class="text-center py-4">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+          </td>
+        </tr>
+        <tr *ngIf="!loading && refunds.length === 0">
+          <td colspan="9" class="text-center text-muted py-4">No refund requests found.</td>
+        </tr>
+        <tr *ngFor="let r of refunds">
+          <td>#{{ r.refundId }}</td>
+          <td>
+            <span class="badge" [ngClass]="r.bookingType === 'Hotel' ? 'bg-info' : 'bg-primary'">
+              {{ r.bookingType || 'N/A' }}
+            </span>
+          </td>
+          <td>{{ r.bookingId || 'N/A' }}</td>
+          <td>{{ r.userId || 'N/A' }}</td>
+          <td class="reason-cell" [title]="r.reason">{{ r.reason || 'No reason provided' }}</td>
+          <td class="fw-bold">${{ r.refundAmount | number:'1.2-2' }}</td>
+          <td>{{ r.createdAt | date:'M/d/yy, HH:mm' }}</td>
+          <td>
+            <span class="badge rounded-pill" [ngClass]="{
+              'bg-warning text-dark': r.status === 'Pending',
+              'bg-success': r.status === 'Approved',
+              'bg-danger': r.status === 'Rejected'
+            }">
+              {{ r.status || 'Pending' }}
+            </span>
+          </td>
+          <td>
+            <div class="action-btns">
+              <button class="btn btn-sm btn-info me-1 text-white" (click)="openViewModal(r)" title="View Details">
+                <i class="fas fa-eye"></i> View
+              </button>
+              <ng-container *ngIf="r.status !== 'Approved' && r.status !== 'Rejected'">
+                <button class="btn btn-sm btn-success me-1" (click)="approveRefund(r)" title="Approve">
+                  <i class="fas fa-check"></i> Approve
+                </button>
+                <button class="btn btn-sm btn-danger" (click)="rejectRefund(r)" title="Reject">
+                  <i class="fas fa-times"></i> Reject
+                </button>
+              </ng-container>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- View Modal -->
+  <div class="modal fade show custom-modal-backdrop" *ngIf="selectedRefund" tabindex="-1" style="display: block;">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content border-0 shadow-lg">
+        <div class="modal-header bg-light border-0">
+          <h5 class="modal-title fw-bold text-dark">
+            <i class="fas fa-file-invoice-dollar me-2 text-primary"></i> Refund Request #{{ selectedRefund.refundId }}
+          </h5>
+          <button type="button" class="btn-close" (click)="closeViewModal()"></button>
+        </div>
+        <div class="modal-body p-4">
+          <div class="row g-3 mb-4">
+            <div class="col-md-6">
+              <p class="text-muted small mb-1">Booking Type</p>
+              <p class="fw-bold mb-0">{{ selectedRefund.bookingType || 'N/A' }}</p>
+            </div>
+            <div class="col-md-6">
+              <p class="text-muted small mb-1">Booking ID</p>
+              <p class="fw-bold mb-0">#{{ selectedRefund.bookingId || 'N/A' }}</p>
+            </div>
+            <div class="col-md-6">
+              <p class="text-muted small mb-1">User ID</p>
+              <p class="fw-bold mb-0">{{ selectedRefund.userId || 'N/A' }}</p>
+            </div>
+            <div class="col-md-6">
+              <p class="text-muted small mb-1">Date Requested</p>
+              <p class="fw-bold mb-0">{{ selectedRefund.createdAt | date:'MMM d, y, HH:mm:ss' }}</p>
+            </div>
+            <div class="col-md-6">
+              <p class="text-muted small mb-1">Amount Requested</p>
+              <p class="fw-bold text-success fs-5 mb-0">${{ selectedRefund.refundAmount | number:'1.2-2' }}</p>
+            </div>
+            <div class="col-md-6">
+              <p class="text-muted small mb-1">Status</p>
+              <span class="badge rounded-pill" [ngClass]="{
+                'bg-warning text-dark': selectedRefund.status === 'Pending',
+                'bg-success': selectedRefund.status === 'Approved',
+                'bg-danger': selectedRefund.status === 'Rejected'
+              }">
+                {{ selectedRefund.status || 'Pending' }}
+              </span>
+            </div>
+          </div>
+
+          <div class="bg-light p-3 rounded-3 border">
+            <h6 class="fw-bold text-dark mb-2">Reason for Refund</h6>
+            <p class="mb-0 text-secondary" style="white-space: pre-wrap;">{{ selectedRefund.reason || 'No reason
+              provided by the user.' }}</p>
+          </div>
+
+          <div class="bg-white p-3 rounded-3 border mt-3 border-info border-start border-4">
+            <h6 class="fw-bold text-dark mb-1"><i class="fas fa-info-circle text-info me-1"></i> Refund Policy Reminder
+            </h6>
+            <p class="mb-0 text-muted small">
+              &gt; 7 days before start: <strong>100%</strong> | 2-7 days: <strong>40%</strong> | &le; 1 day:
+              <strong>20%</strong><br>
+              <em class="text-secondary" style="font-size: 0.75rem;">Note: The system automatically calculates the
+                eligible amount for the client, but you may manually adjust it when approving.</em>
+            </p>
+          </div>
+        </div>
+        <div class="modal-footer border-0 bg-light">
+          <ng-container *ngIf="selectedRefund.status !== 'Approved' && selectedRefund.status !== 'Rejected'">
+            <button type="button" class="btn btn-success"
+              (click)="approveRefund(selectedRefund); closeViewModal()">Approve</button>
+            <button type="button" class="btn btn-danger"
+              (click)="rejectRefund(selectedRefund); closeViewModal()">Reject</button>
+          </ng-container>
+          <button type="button" class="btn btn-secondary" (click)="closeViewModal()">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

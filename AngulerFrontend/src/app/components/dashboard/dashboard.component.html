@@ -1,0 +1,254 @@
+<div class="container-fluid px-4 py-3">
+
+  <!-- Header -->
+  <div class="mb-4">
+    <h2 class="fw-bold mb-1">Welcome back, {{ userName }} 👋</h2>
+    <p class="text-muted mb-0">Here's what's happening with your travel platform today.</p>
+  </div>
+
+  <!-- Loading spinner -->
+  <div *ngIf="isLoading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="text-muted mt-2">Loading statistics...</p>
+  </div>
+
+  <ng-container *ngIf="!isLoading">
+    <!-- Row 1: Primary stats -->
+    <div class="row g-3 mb-3">
+
+      <div class="col-12 col-sm-6 col-lg-3">
+        <mat-card class="h-100 border-0 shadow-sm stat-card clickable" routerLink="/packages">
+          <mat-card-content class="d-flex align-items-center justify-content-between p-3">
+            <div>
+              <p class="text-muted small mb-1">Tour Packages</p>
+              <h3 class="fw-bold mb-0 text-primary">{{ stats.packages }}</h3>
+            </div>
+            <div class="icon-box rounded-circle bg-primary bg-opacity-10 d-flex align-items-center justify-content-center">
+              <mat-icon class="text-primary">tour</mat-icon>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <div class="col-12 col-sm-6 col-lg-3">
+        <mat-card class="h-100 border-0 shadow-sm stat-card clickable" routerLink="/tour-bookings">
+          <mat-card-content class="d-flex align-items-center justify-content-between p-3">
+            <div>
+              <p class="text-muted small mb-1">Tour Bookings</p>
+              <h3 class="fw-bold mb-0 text-success">{{ stats.bookings }}</h3>
+            </div>
+            <div class="icon-box rounded-circle bg-success bg-opacity-10 d-flex align-items-center justify-content-center">
+              <mat-icon class="text-success">book_online</mat-icon>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <div class="col-12 col-sm-6 col-lg-3">
+        <mat-card class="h-100 border-0 shadow-sm stat-card clickable" routerLink="/hotels">
+          <mat-card-content class="d-flex align-items-center justify-content-between p-3">
+            <div>
+              <p class="text-muted small mb-1">Hotels</p>
+              <h3 class="fw-bold mb-0 text-warning">{{ stats.hotels }}</h3>
+            </div>
+            <div class="icon-box rounded-circle bg-warning bg-opacity-10 d-flex align-items-center justify-content-center">
+              <mat-icon class="text-warning">hotel</mat-icon>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <div class="col-12 col-sm-6 col-lg-3">
+        <mat-card class="h-100 border-0 shadow-sm stat-card clickable" routerLink="/hotel-bookings">
+          <mat-card-content class="d-flex align-items-center justify-content-between p-3">
+            <div>
+              <p class="text-muted small mb-1">Hotel Bookings</p>
+              <h3 class="fw-bold mb-0 text-info">{{ stats.hotelBookings }}</h3>
+            </div>
+            <div class="icon-box rounded-circle bg-info bg-opacity-10 d-flex align-items-center justify-content-center">
+              <mat-icon class="text-info">meeting_room</mat-icon>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </div>
+
+    <!-- Row 2: Secondary stats -->
+    <div class="row g-3 mb-4">
+
+      <div class="col-12 col-sm-6 col-lg-3">
+        <mat-card class="h-100 border-0 shadow-sm stat-card clickable" routerLink="/restaurants">
+          <mat-card-content class="d-flex align-items-center justify-content-between p-3">
+            <div>
+              <p class="text-muted small mb-1">Restaurants</p>
+              <h3 class="fw-bold mb-0" style="color:#e74c3c;">{{ stats.restaurants }}</h3>
+            </div>
+            <div class="icon-box rounded-circle d-flex align-items-center justify-content-center" style="background:rgba(231,76,60,0.1);">
+              <mat-icon style="color:#e74c3c;">restaurant</mat-icon>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <div class="col-12 col-sm-6 col-lg-3">
+        <mat-card class="h-100 border-0 shadow-sm stat-card clickable" routerLink="/tourspots">
+          <mat-card-content class="d-flex align-items-center justify-content-between p-3">
+            <div>
+              <p class="text-muted small mb-1">Tour Spots</p>
+              <h3 class="fw-bold mb-0" style="color:#8e44ad;">{{ stats.tourSpots }}</h3>
+            </div>
+            <div class="icon-box rounded-circle d-flex align-items-center justify-content-center" style="background:rgba(142,68,173,0.1);">
+              <mat-icon style="color:#8e44ad;">place</mat-icon>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <div class="col-12 col-sm-6 col-lg-3">
+        <mat-card class="h-100 border-0 shadow-sm stat-card clickable" routerLink="/tourspots">
+          <mat-card-content class="d-flex align-items-center justify-content-between p-3">
+            <div>
+              <p class="text-muted small mb-1">Divisions</p>
+              <h3 class="fw-bold mb-0" style="color:#16a085;">{{ stats.divisions }}</h3>
+            </div>
+            <div class="icon-box rounded-circle d-flex align-items-center justify-content-center" style="background:rgba(22,160,133,0.1);">
+              <mat-icon style="color:#16a085;">map</mat-icon>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <div class="col-12 col-sm-6 col-lg-3">
+        <mat-card class="h-100 border-0 shadow-sm stat-card clickable" routerLink="/tour-bookings">
+          <mat-card-content class="d-flex align-items-center justify-content-between p-3">
+            <div>
+              <p class="text-muted small mb-1">Payments</p>
+              <h3 class="fw-bold mb-0" style="color:#d35400;">{{ stats.payments }}</h3>
+            </div>
+            <div class="icon-box rounded-circle d-flex align-items-center justify-content-center" style="background:rgba(211,84,0,0.1);">
+              <mat-icon style="color:#d35400;">payments</mat-icon>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </div>
+
+    <!-- Management Cards -->
+    <div class="row g-4 mb-4">
+      <!-- Tour Bookings Management -->
+      <div class="col-12 col-sm-6 col-lg-4">
+        <mat-card class="border-0 shadow-sm h-100 mgmt-card" style="background: linear-gradient(135deg, #0277bd, #01579b); color: white;" routerLink="/tour-bookings">
+          <mat-card-content class="d-flex align-items-center p-3">
+            <div class="mgmt-icon rounded-circle d-flex align-items-center justify-content-center me-3" style="background:rgba(255,255,255,0.15);">
+              <mat-icon style="color:white;">luggage</mat-icon>
+            </div>
+            <div class="flex-grow-1">
+              <h5 class="fw-bold mb-0" style="color:white;">Tour Bookings</h5>
+              <p class="mb-0" style="color:rgba(255,255,255,0.75); font-size:0.85rem;">Manage all tour bookings</p>
+            </div>
+            <mat-icon class="arrow-icon" style="color:rgba(255,255,255,0.75);">arrow_forward_ios</mat-icon>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <!-- Hotel Bookings Management -->
+      <div class="col-12 col-sm-6 col-lg-4">
+        <mat-card class="border-0 shadow-sm h-100 mgmt-card" style="background: linear-gradient(135deg, #2e7d32, #1b5e20); color: white;" routerLink="/hotel-bookings">
+          <mat-card-content class="d-flex align-items-center p-3">
+            <div class="mgmt-icon rounded-circle d-flex align-items-center justify-content-center me-3" style="background:rgba(255,255,255,0.15);">
+              <mat-icon style="color:white;">bed</mat-icon>
+            </div>
+            <div class="flex-grow-1">
+              <h5 class="fw-bold mb-0" style="color:white;">Hotel Bookings</h5>
+              <p class="mb-0" style="color:rgba(255,255,255,0.75); font-size:0.85rem;">Manage all hotel bookings</p>
+            </div>
+            <mat-icon class="arrow-icon" style="color:rgba(255,255,255,0.75);">arrow_forward_ios</mat-icon>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <!-- Custom Tours Management -->
+      <div class="col-12 col-sm-6 col-lg-4">
+        <mat-card class="border-0 shadow-sm h-100 mgmt-card" style="background: linear-gradient(135deg, #f57f17, #e65100); color: white;" routerLink="/custom-tours">
+          <mat-card-content class="d-flex align-items-center p-3">
+            <div class="mgmt-icon rounded-circle d-flex align-items-center justify-content-center me-3" style="background:rgba(255,255,255,0.15);">
+              <mat-icon style="color:white;">explore</mat-icon>
+            </div>
+            <div class="flex-grow-1">
+              <h5 class="fw-bold mb-0" style="color:white;">Custom Tours</h5>
+              <p class="mb-0" style="color:rgba(255,255,255,0.75); font-size:0.85rem;">Manage {{ stats.customTours }} requests</p>
+            </div>
+            <mat-icon class="arrow-icon" style="color:rgba(255,255,255,0.75);">arrow_forward_ios</mat-icon>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <!-- Live Tracking Management -->
+      <div class="col-12 col-sm-6 col-lg-4">
+        <mat-card class="border-0 shadow-sm h-100 mgmt-card" style="background: linear-gradient(135deg, #6a1b9a, #4a148c); color: white;" routerLink="/packages">
+          <mat-card-content class="d-flex align-items-center p-3">
+            <div class="mgmt-icon rounded-circle d-flex align-items-center justify-content-center me-3" style="background:rgba(255,255,255,0.15);">
+              <mat-icon style="color:white;">track_changes</mat-icon>
+            </div>
+            <div class="flex-grow-1">
+              <h5 class="fw-bold mb-0" style="color:white;">Live Tracking</h5>
+              <p class="mb-0" style="color:rgba(255,255,255,0.75); font-size:0.85rem;">Monitor ongoing tours</p>
+            </div>
+            <mat-icon class="arrow-icon" style="color:rgba(255,255,255,0.75);">arrow_forward_ios</mat-icon>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <!-- Completed Tours Management -->
+      <div class="col-12 col-sm-6 col-lg-4">
+        <mat-card class="border-0 shadow-sm h-100 mgmt-card" style="background: linear-gradient(135deg, #00695c, #004d40); color: white;" routerLink="/packages/completed">
+          <mat-card-content class="d-flex align-items-center p-3">
+            <div class="mgmt-icon rounded-circle d-flex align-items-center justify-content-center me-3" style="background:rgba(255,255,255,0.15);">
+              <mat-icon style="color:white;">task_alt</mat-icon>
+            </div>
+            <div class="flex-grow-1">
+              <h5 class="fw-bold mb-0" style="color:white;">Completed Tours</h5>
+              <p class="mb-0" style="color:rgba(255,255,255,0.75); font-size:0.85rem;">View archived tours & reports</p>
+            </div>
+            <mat-icon class="arrow-icon" style="color:rgba(255,255,255,0.75);">arrow_forward_ios</mat-icon>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <!-- Admin User Management Card -->
+      <div class="col-12 col-sm-6 col-lg-4" *ngIf="isAdmin">
+        <mat-card class="border-0 shadow-sm h-100 mgmt-card" style="background: linear-gradient(135deg, #1a237e, #283593); color: white;" routerLink="/user-management">
+          <mat-card-content class="d-flex align-items-center p-3">
+            <div class="mgmt-icon rounded-circle d-flex align-items-center justify-content-center me-3" style="background:rgba(255,255,255,0.15);">
+              <mat-icon style="color:white;">manage_accounts</mat-icon>
+            </div>
+            <div class="flex-grow-1">
+              <h5 class="fw-bold mb-0" style="color:white;">User Management</h5>
+              <p class="mb-0" style="color:rgba(255,255,255,0.75); font-size:0.85rem;">Manage user accounts</p>
+            </div>
+            <mat-icon class="arrow-icon" style="color:rgba(255,255,255,0.75);">arrow_forward_ios</mat-icon>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <!-- Refunds Management -->
+      <div class="col-12 col-sm-6 col-lg-4" *ngIf="isAdmin">
+        <mat-card class="border-0 shadow-sm h-100 mgmt-card" style="background: linear-gradient(135deg, #d32f2f, #b71c1c); color: white;" routerLink="/refunds">
+          <mat-card-content class="d-flex align-items-center p-3">
+            <div class="mgmt-icon rounded-circle d-flex align-items-center justify-content-center me-3" style="background:rgba(255,255,255,0.15);">
+              <mat-icon style="color:white;">currency_exchange</mat-icon>
+            </div>
+            <div class="flex-grow-1">
+              <h5 class="fw-bold mb-0" style="color:white;">Refunds</h5>
+              <p class="mb-0" style="color:rgba(255,255,255,0.75); font-size:0.85rem;">Manage refund requests</p>
+            </div>
+            <mat-icon class="arrow-icon" style="color:rgba(255,255,255,0.75);">arrow_forward_ios</mat-icon>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </div>
+
+  </ng-container>
+</div>

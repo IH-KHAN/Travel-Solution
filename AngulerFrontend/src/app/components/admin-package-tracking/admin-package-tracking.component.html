@@ -1,0 +1,81 @@
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Live Tour Tracking <span *ngIf="packageDetails">- {{ packageDetails.packageTitle }}</span></h2>
+    <button class="btn btn-outline-secondary" routerLink="/admin/packages">Back to Packages</button>
+  </div>
+
+  <div class="card shadow-sm mb-4">
+    <div class="card-body">
+      <h5>Tour Progress</h5>
+      <div class="progress" style="height: 25px;">
+        <div class="progress-bar progress-bar-striped progress-bar-animated bg-success" 
+             role="progressbar" 
+             [style.width]="progressPercentage + '%'" 
+             [attr.aria-valuenow]="progressPercentage" 
+             aria-valuemin="0" 
+             aria-valuemax="100">
+          {{ progressPercentage }}%
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-8">
+      <div class="timeline-container">
+        <h4 class="mb-3">Activity Timeline</h4>
+        <div *ngIf="activities.length === 0" class="alert alert-info">
+          No activities found for this package.
+        </div>
+
+        <div class="list-group">
+          <div *ngFor="let activity of activities; let i = index" 
+               class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+               [ngClass]="{'list-group-item-success': activity.isCompleted, 'list-group-item-light': !activity.isCompleted}">
+            
+            <div>
+          <h5 class="mb-1">
+            <span class="badge rounded-pill me-2" [ngClass]="activity.isCompleted ? 'bg-success' : 'bg-secondary'">{{ i + 1 }}</span>
+            {{ activity.activityName }} <small class="text-muted">({{ activity.activityType }})</small>
+          </h5>
+          <p class="mb-1 text-muted">
+            <i class="bi bi-calendar-event me-1"></i> Planned: {{ activity.plannedTime | date:'MMM d, y, HH:mm:ss' }}
+          </p>
+          <p *ngIf="activity.isCompleted" class="mb-0 text-success fw-bold">
+            <i class="bi bi-check-circle-fill me-1"></i> Completed: {{ activity.actualTime | date:'MMM d, y, HH:mm:ss' }}
+          </p>
+        </div>
+        
+        <div>
+          <span *ngIf="activity.isCompleted" class="badge bg-success px-3 py-2">Completed</span>
+          <span *ngIf="!activity.isCompleted" class="badge bg-warning text-dark px-3 py-2">Pending</span>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Traveller Attendance Section -->
+    <div class="col-md-4">
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-white">
+          <h5 class="card-title mb-0">Traveller Attendance</h5>
+        </div>
+        <div class="card-body p-0">
+          <div *ngIf="travellers.length === 0" class="p-3 text-muted">
+            No travellers booked for this package.
+          </div>
+          <ul class="list-group list-group-flush" *ngIf="travellers.length > 0">
+            <li class="list-group-item d-flex justify-content-between align-items-center" *ngFor="let t of travellers">
+              <div>
+                <span class="fw-medium">{{ t.travellerName }}</span>
+                <div class="small text-muted">{{ t.phone }}</div>
+              </div>
+              <span class="badge rounded-pill" [ngClass]="t.isPresent ? 'bg-success' : 'bg-danger'">
+                {{ t.isPresent ? 'Present' : 'Absent' }}
+              </span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

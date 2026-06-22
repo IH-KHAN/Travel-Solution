@@ -1,0 +1,145 @@
+<div class="modal-container-custom">
+  <!-- Header -->
+  <div class="modal-header-custom">
+    <h3><i class="bi bi-camera-fill me-2"></i>Design Tour Magazine Cover</h3>
+    <div class="header-actions">
+      <button mat-flat-button color="accent" (click)="previewFullMagazine()" class="me-3" matTooltip="Preview full compiled magazine PDF in new tab">
+        <mat-icon class="me-1">menu_book</mat-icon> Preview Entire Magazine
+      </button>
+      <button mat-icon-button (click)="onCancel()" style="color: white;">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+  </div>
+
+  <div class="modal-body-custom">
+    <!-- Left Column: Form Editor (Scrollable) -->
+    <div class="editor-pane">
+      <form>
+        <!-- Template Selection Grid -->
+        <div class="section-title">1. Select Magazine Cover Style</div>
+        <div class="template-grid">
+          <div *ngFor="let temp of templates" 
+               class="template-card" 
+               [class.active]="selectedTemplate === temp.id"
+               (click)="selectTemplate(temp.id)">
+            <div class="template-radio-dot"></div>
+            <div class="template-details">
+              <span class="template-name">{{ temp.name }}</span>
+              <span class="template-desc">{{ temp.desc }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-title mt-4">2. Typography & Text Content</div>
+        
+        <mat-form-field appearance="outline" class="w-100 mb-3">
+          <mat-label>Magazine Main Title</mat-label>
+          <input matInput [(ngModel)]="title" (ngModelChange)="triggerPreview()" name="title" required placeholder="e.g. EXPLORER, WANDERLUST">
+          <mat-icon matSuffix>title</mat-icon>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="w-100 mb-3">
+          <mat-label>Magazine Subtitle / Teaser Description</mat-label>
+          <textarea matInput [(ngModel)]="subtitle" (ngModelChange)="triggerPreview()" name="subtitle" rows="3" placeholder="A photographic chronicle of our activities..."></textarea>
+        </mat-form-field>
+
+        <div class="row">
+          <div class="col-md-6">
+            <mat-form-field appearance="outline" class="w-100 mb-3">
+              <mat-label>Issue Date Caption</mat-label>
+              <input matInput [(ngModel)]="dateText" (ngModelChange)="triggerPreview()" name="dateText" placeholder="e.g. MAY 2026">
+              <mat-icon matSuffix>today</mat-icon>
+            </mat-form-field>
+          </div>
+          <div class="col-md-6">
+            <mat-form-field appearance="outline" class="w-100 mb-3">
+              <mat-label>Issue Code / Label</mat-label>
+              <input matInput [(ngModel)]="issueText" (ngModelChange)="triggerPreview()" name="issueText" placeholder="e.g. ISSUE 01">
+              <mat-icon matSuffix>tag</mat-icon>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <div class="section-title mt-4">3. Cover Background Image</div>
+        
+        <div class="file-upload-section mb-3">
+          <div class="upload-area">
+            <input type="file" (change)="onFileSelected($event)" accept="image/*" class="file-input">
+            <i class="bi bi-cloud-arrow-up text-primary" style="font-size: 2rem;"></i>
+            <p class="mt-2 mb-0 fw-semibold text-secondary">
+              {{ selectedCoverFileName ? selectedCoverFileName : 'Drag & drop cover image here or click to browse' }}
+            </p>
+            <small class="text-muted">Supports JPG, PNG (Max 5MB)</small>
+          </div>
+        </div>
+
+        <!-- Selected File Preview Badge -->
+        <div *ngIf="selectedCoverFile" class="mt-3">
+          <h6 style="color: #64748b; font-size: 0.9rem; font-weight: 600;">Selected Image</h6>
+          <div class="image-previews-list">
+            <div class="image-preview-badge">
+              <i class="bi bi-image text-primary me-2"></i>
+              <span class="file-name">{{ selectedCoverFile.name }}</span>
+              <button type="button" (click)="removeFile()" class="remove-btn">
+                <i class="bi bi-x-circle-fill"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Existing Cover Image Preview -->
+        <div *ngIf="existingImageUrl && !selectedCoverFile" class="mt-3">
+          <h6 style="color: #64748b; font-size: 0.9rem; font-weight: 600;">Current Cover Image</h6>
+          <div class="uploaded-previews-grid">
+            <div class="uploaded-preview-card">
+              <img [src]="'http://localhost:5246/' + existingImageUrl" alt="Current Cover">
+              <button type="button" (click)="deleteExistingCoverImage()" class="delete-btn" matTooltip="Remove cover image">
+                <i class="bi bi-trash-fill"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- Right Column: Live PDF Preview -->
+    <div class="preview-pane">
+      <div class="preview-header-bar">
+        <div class="preview-title"><i class="bi bi-eye-fill me-2 text-primary"></i>Live Cover Page Preview</div>
+        <div class="preview-status" *ngIf="isPreviewLoading">
+          <span class="spinner-border spinner-border-sm text-primary me-2" role="status"></span>
+          Rendering...
+        </div>
+        <div class="preview-status text-success" *ngIf="!isPreviewLoading">
+          <i class="bi bi-check-circle-fill me-1"></i> Up to date
+        </div>
+      </div>
+      
+      <div class="iframe-container">
+        <iframe *ngIf="previewUrl" [src]="previewUrl" type="application/pdf"></iframe>
+        <div class="no-preview" *ngIf="!previewUrl && !isPreviewLoading">
+          <i class="bi bi-file-earmark-pdf text-muted" style="font-size: 4rem;"></i>
+          <p class="mt-3 text-secondary fw-semibold">No Preview Available</p>
+          <p class="text-muted small px-4 text-center">Fill in the cover title and choose a layout to start generating a preview.</p>
+        </div>
+        <div class="no-preview" *ngIf="!previewUrl && isPreviewLoading">
+          <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;"></div>
+          <p class="mt-3 text-secondary fw-semibold">Generating cover preview...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer Actions -->
+  <div class="modal-footer-custom">
+    <button mat-button (click)="onCancel()" class="me-2">Cancel</button>
+    <button mat-raised-button color="primary" (click)="submitCover()" [disabled]="isSubmitting" class="save-btn">
+      <span *ngIf="!isSubmitting">Save Cover Settings</span>
+      <span *ngIf="isSubmitting" class="d-flex align-items-center">
+        <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+        Saving...
+      </span>
+    </button>
+  </div>
+</div>

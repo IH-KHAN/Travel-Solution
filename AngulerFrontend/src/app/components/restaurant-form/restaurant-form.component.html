@@ -1,0 +1,155 @@
+<div class="container mt-4 mb-5">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>{{ isEditMode ? 'Edit' : 'Add' }} Restaurant</h2>
+    <button mat-button routerLink="/restaurants">Back to List</button>
+  </div>
+
+  <form [formGroup]="restaurantForm" (ngSubmit)="onSubmit()">
+    <mat-card class="mb-4">
+      <mat-card-header>
+        <mat-card-title>Master Details</mat-card-title>
+      </mat-card-header>
+      <mat-card-content class="pt-3">
+        <div class="row">
+          <div class="col-md-6">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>Restaurant Name</mat-label>
+              <input matInput formControlName="restaurantName">
+            </mat-form-field>
+          </div>
+          <div class="col-md-6">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>Location</mat-label>
+              <input matInput formControlName="location">
+            </mat-form-field>
+          </div>
+          <div class="col-md-6 d-flex align-items-center">
+            <mat-slide-toggle formControlName="isOpen" color="primary">
+              Currently Open
+            </mat-slide-toggle>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Breakfasts Section -->
+    <mat-card class="mb-4">
+      <mat-card-header class="d-flex justify-content-between w-100 align-items-center">
+        <mat-card-title>Breakfast Menu</mat-card-title>
+        <button type="button" mat-raised-button color="accent" (click)="addBreakfast()">
+          <mat-icon>add</mat-icon> Add Breakfast
+        </button>
+      </mat-card-header>
+      <mat-card-content>
+        <table class="table table-striped mt-3" *ngIf="breakfasts.length > 0">
+          <thead>
+            <tr>
+              <th>Item</th>
+              <th>Price</th>
+              <th>Time</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let b of breakfasts; let i = index">
+              <td>{{b.menuItem}}</td>
+              <td>{{b.itemPrice | currency}}</td>
+              <td>{{parseDate(b.breakfastTime) | date:'HH:mm'}}</td>
+              <td>
+                <button type="button" mat-icon-button color="primary" (click)="editBreakfast(i)">
+                  <mat-icon>edit</mat-icon>
+                </button>
+                <button type="button" mat-icon-button color="warn" (click)="deleteBreakfast(i)">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <p *ngIf="breakfasts.length === 0" class="text-muted mt-3">No breakfast items added yet.</p>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Lunches Section -->
+    <mat-card class="mb-4">
+      <mat-card-header class="d-flex justify-content-between w-100 align-items-center">
+        <mat-card-title>Lunch Menu</mat-card-title>
+        <button type="button" mat-raised-button color="accent" (click)="addLunch()">
+          <mat-icon>add</mat-icon> Add Lunch
+        </button>
+      </mat-card-header>
+      <mat-card-content>
+        <table class="table table-striped mt-3" *ngIf="lunches.length > 0">
+          <thead>
+            <tr>
+              <th>Item</th>
+              <th>Price</th>
+              <th>Time</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let l of lunches; let i = index">
+              <td>{{l.menuItem}}</td>
+              <td>{{l.itemPrice | currency}}</td>
+              <td>{{parseDate(l.lunchTime) | date:'HH:mm'}}</td>
+              <td>
+                <button type="button" mat-icon-button color="primary" (click)="editLunch(i)">
+                  <mat-icon>edit</mat-icon>
+                </button>
+                <button type="button" mat-icon-button color="warn" (click)="deleteLunch(i)">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <p *ngIf="lunches.length === 0" class="text-muted mt-3">No lunch items added yet.</p>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Dinners Section -->
+    <mat-card class="mb-4">
+      <mat-card-header class="d-flex justify-content-between w-100 align-items-center">
+        <mat-card-title>Dinner Menu</mat-card-title>
+        <button type="button" mat-raised-button color="accent" (click)="addDinner()">
+          <mat-icon>add</mat-icon> Add Dinner
+        </button>
+      </mat-card-header>
+      <mat-card-content>
+        <table class="table table-striped mt-3" *ngIf="dinners.length > 0">
+          <thead>
+            <tr>
+              <th>Item</th>
+              <th>Price</th>
+              <th>Time</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let d of dinners; let i = index">
+              <td>{{d.menuItem}}</td>
+              <td>{{d.itemPrice | currency}}</td>
+              <td>{{parseDate(d.dinnerTime) | date:'HH:mm'}}</td>
+              <td>
+                <button type="button" mat-icon-button color="primary" (click)="editDinner(i)">
+                  <mat-icon>edit</mat-icon>
+                </button>
+                <button type="button" mat-icon-button color="warn" (click)="deleteDinner(i)">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <p *ngIf="dinners.length === 0" class="text-muted mt-3">No dinner items added yet.</p>
+      </mat-card-content>
+    </mat-card>
+
+    <div class="d-flex justify-content-end mt-4">
+      <button mat-raised-button color="primary" type="submit" [disabled]="!restaurantForm.valid">
+        Save Restaurant
+      </button>
+    </div>
+  </form>
+</div>

@@ -1,0 +1,117 @@
+<div class="page-wrapper">
+  <!-- Hero Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-icon">
+        <mat-icon>manage_accounts</mat-icon>
+      </div>
+      <div>
+        <h1 class="page-title">User Management</h1>
+        <p class="page-subtitle">Manage user accounts and assign roles across the platform</p>
+      </div>
+    </div>
+    <a mat-stroked-button routerLink="/dashboard" class="back-btn">
+      <mat-icon>arrow_back</mat-icon> Back to Dashboard
+    </a>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Loading users...</p>
+  </div>
+
+  <!-- Users Table -->
+  <mat-card class="users-card shadow" *ngIf="!isLoading">
+    <mat-card-content>
+      <div class="table-header">
+        <span class="total-badge">{{ users.length }} users total</span>
+      </div>
+
+      <div class="table-responsive">
+        <table mat-table [dataSource]="users" class="users-table w-100">
+
+          <!-- ID -->
+          <ng-container matColumnDef="userId">
+            <th mat-header-cell *matHeaderCellDef>#</th>
+            <td mat-cell *matCellDef="let u">
+              <span class="id-chip">{{ u.userId }}</span>
+            </td>
+          </ng-container>
+
+          <!-- Name -->
+          <ng-container matColumnDef="userName">
+            <th mat-header-cell *matHeaderCellDef>Name</th>
+            <td mat-cell *matCellDef="let u">
+              <div class="user-name-cell">
+                <div class="avatar">{{ (u.userName || 'U').charAt(0).toUpperCase() }}</div>
+                <span class="fw-semibold">{{ u.userName }}</span>
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Email -->
+          <ng-container matColumnDef="email">
+            <th mat-header-cell *matHeaderCellDef>Email</th>
+            <td mat-cell *matCellDef="let u">
+              <span class="email-text">{{ u.email }}</span>
+            </td>
+          </ng-container>
+
+          <!-- Phone -->
+          <ng-container matColumnDef="phoneNumber">
+            <th mat-header-cell *matHeaderCellDef>Phone</th>
+            <td mat-cell *matCellDef="let u">{{ u.phoneNumber || '—' }}</td>
+          </ng-container>
+
+          <!-- Role -->
+          <ng-container matColumnDef="role">
+            <th mat-header-cell *matHeaderCellDef>Role</th>
+            <td mat-cell *matCellDef="let u">
+              <mat-form-field *ngIf="isAdminOrAudit && canEditUser(u)" appearance="outline" class="role-select">
+                <mat-select [(ngModel)]="u.roleId">
+                  <mat-option *ngFor="let r of getAvailableRoles(u)" [value]="r.roleId">{{ r.roleName }}</mat-option>
+                </mat-select>
+              </mat-form-field>
+              <span *ngIf="!isAdminOrAudit || !canEditUser(u)" class="badge bg-secondary px-3 py-2 fw-semibold text-white">{{ u.role || getRoleName(u.roleId) }}</span>
+            </td>
+          </ng-container>
+
+          <!-- Status -->
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef>Status</th>
+            <td mat-cell *matCellDef="let u">
+              <span class="badge" [ngClass]="(u.isBlocked || u.IsBlocked) ? 'bg-danger' : 'bg-success'" style="font-size: 0.85rem; padding: 6px 12px; font-weight: 600; border-radius: 12px;">
+                {{ (u.isBlocked || u.IsBlocked) ? 'Blocked' : 'Active' }}
+              </span>
+            </td>
+          </ng-container>
+
+          <!-- Actions -->
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef class="text-end actions-header-cell">Actions</th>
+            <td mat-cell *matCellDef="let u" class="text-end actions-data-cell">
+              <button *ngIf="canEditUser(u)" mat-raised-button color="primary" class="save-btn me-2" (click)="updateUserRole(u.userId, u.roleId)"
+                matTooltip="Save role change">
+                <mat-icon>save</mat-icon> Save
+              </button>
+              <button *ngIf="isAudit" mat-stroked-button [color]="(u.isBlocked || u.IsBlocked) ? 'warn' : 'accent'" class="block-btn" (click)="toggleBlock(u)"
+                matTooltip="Toggle user block status">
+                <mat-icon>{{ (u.isBlocked || u.IsBlocked) ? 'lock_open' : 'lock' }}</mat-icon>
+                {{ (u.isBlocked || u.IsBlocked) ? 'Unblock' : 'Block' }}
+              </button>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="user-row"></tr>
+        </table>
+      </div>
+
+      <div *ngIf="users.length === 0" class="empty-state">
+        <mat-icon>people_outline</mat-icon>
+        <p>No users found.</p>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

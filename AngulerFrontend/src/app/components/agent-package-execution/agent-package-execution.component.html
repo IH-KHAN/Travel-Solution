@@ -1,0 +1,117 @@
+<div class="container py-4" style="max-width: 900px;">
+  <div *ngIf="pkg" class="mb-4 bg-white rounded shadow-sm p-4 border">
+    <h1 class="display-6 fw-bold text-dark mb-2">{{ pkg.packageTitle }}</h1>
+    <p class="text-secondary mb-0 fs-5">{{ pkg.packageCode }}</p>
+  </div>
+
+  <!-- Traveller Checklist -->
+  <div *ngIf="showTravellerChecklist && travellers.length > 0" class="mb-5 bg-light border border-primary border-opacity-25 rounded p-4 shadow-sm">
+    <h2 class="h4 fw-bold text-primary mb-3 d-flex align-items-center">
+      <svg class="me-2 text-primary" style="width: 1.5rem; height: 1.5rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+      Traveller Presence Checklist
+    </h2>
+    <p class="small text-primary mb-4">Please verify the presence of all travellers before starting the first activity.</p>
+    
+    <div class="list-group mb-4">
+      <label *ngFor="let t of travellers" class="list-group-item list-group-item-action d-flex align-items-center cursor-pointer p-3">
+        <input type="checkbox" [(ngModel)]="t.isPresent" class="form-check-input me-3 mt-0" style="width: 1.25rem; height: 1.25rem;">
+        <span class="fw-medium text-dark">{{ t.travellerName }}</span>
+        <span class="ms-auto small text-muted">{{ t.phone }} | Age: {{ t.age }}</span>
+      </label>
+    </div>
+    
+    <button (click)="saveTravellerPresence()" class="btn btn-primary fw-bold px-4 py-2">
+      Save Checklist
+    </button>
+  </div>
+
+  <!-- Current Activity Execution -->
+  <div *ngIf="currentActivity" class="card shadow-sm mb-5 border-0">
+    <div class="card-header bg-primary text-white px-4 py-3 border-0">
+      <h2 class="h5 fw-bold mb-0 d-flex align-items-center">
+        <span class="badge bg-light text-primary text-uppercase me-3">{{ currentActivity.activityType }}</span>
+        {{ currentActivity.activityName }}
+      </h2>
+    </div>
+    
+    <div class="card-body p-4">
+      <div class="row g-3 mb-4 small text-dark">
+        <div class="col-12 col-md-6"><span class="fw-bold text-secondary">Planned Time:</span> {{ currentActivity.plannedTime | date:'MMM d, y, HH:mm:ss' }}</div>
+        <div class="col-12 col-md-6">
+          <span class="fw-bold text-secondary">Projected Cost:</span> 
+          ৳{{ totalProjectedCost | number:'1.2-2' }}
+        </div>
+        <div class="col-12 mt-2 text-dark">{{ currentActivity.activityDescription }}</div>
+      </div>
+
+      <hr class="text-muted mb-4">
+
+      <div class="row g-3">
+        <div class="col-12">
+          <label class="form-label fw-medium text-dark small mb-1">Actual Cost (৳)</label>
+          <input type="number" [(ngModel)]="actualCost" class="form-control">
+        </div>
+        
+        <div class="col-12">
+          <label class="form-label fw-medium text-dark small mb-1">Remarks</label>
+          <textarea [(ngModel)]="remarks" rows="3" class="form-control"></textarea>
+        </div>
+
+        <div class="col-12">
+          <label class="form-label fw-medium text-dark small mb-1">Upload Invoice</label>
+          <input type="file" (change)="onFileSelected($event)" class="form-control">
+        </div>
+
+        <div class="col-12 mt-4">
+          <button (click)="completeCurrentActivity()" class="btn btn-success w-100 fw-bold py-3 fs-5 shadow-sm">
+            Complete Activity
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="!currentActivity && pkg" class="alert alert-success d-flex flex-column align-items-center p-5 shadow-sm">
+    <svg class="text-success mb-3" style="width: 4rem; height: 4rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+    <h2 class="h3 fw-bold text-success mb-2">All Planned Activities Completed!</h2>
+    <p class="text-success mb-0">The tour package has been fully executed.</p>
+  </div>
+
+  <!-- Unplanned Activity Section -->
+  <div class="mt-5 pt-4 border-top">
+    <button *ngIf="!showUnplannedForm" (click)="showUnplannedForm = true" class="btn btn-link text-primary fw-medium text-decoration-none d-flex align-items-center p-0">
+      <svg class="me-2" style="width: 1.25rem; height: 1.25rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+      Add Unplanned Activity
+    </button>
+
+    <div *ngIf="showUnplannedForm" class="bg-light border rounded p-4 shadow-sm mt-3">
+      <h3 class="h5 fw-bold text-dark mb-4">New Unplanned Activity</h3>
+      
+      <div class="row g-3">
+        <div class="col-12">
+          <label class="form-label fw-medium text-dark small mb-1">Activity Name</label>
+          <input type="text" [(ngModel)]="unplannedName" class="form-control">
+        </div>
+        
+        <div class="col-12">
+          <label class="form-label fw-medium text-dark small mb-1">Description</label>
+          <textarea [(ngModel)]="unplannedDesc" rows="2" class="form-control"></textarea>
+        </div>
+
+        <div class="col-12">
+          <label class="form-label fw-medium text-dark small mb-1">Remarks</label>
+          <textarea [(ngModel)]="unplannedRemarks" rows="2" class="form-control"></textarea>
+        </div>
+
+        <div class="col-12 d-flex gap-2 pt-2">
+          <button (click)="submitUnplannedActivity()" class="btn btn-primary fw-bold px-4">
+            Submit
+          </button>
+          <button (click)="showUnplannedForm = false" class="btn btn-secondary fw-bold px-4">
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

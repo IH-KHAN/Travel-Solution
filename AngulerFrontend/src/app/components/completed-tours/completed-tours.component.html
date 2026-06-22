@@ -1,0 +1,102 @@
+<div class="container-fluid mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold text-success"><i class="bi bi-check-circle-fill me-2"></i>Completed Tour Packages</h2>
+  </div>
+
+  <div *ngIf="isLoading" class="d-flex justify-content-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+
+  <div *ngIf="errorMessage && !isLoading" class="alert alert-danger d-flex align-items-center" role="alert">
+    <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
+    <div>{{ errorMessage }}</div>
+  </div>
+
+  <mat-card class="shadow-sm" *ngIf="!isLoading">
+    <table mat-table [dataSource]="completedPackages" class="w-100">
+      
+      <!-- ID Column -->
+      <ng-container matColumnDef="packageId">
+        <th mat-header-cell *matHeaderCellDef> ID </th>
+        <td mat-cell *matCellDef="let element"> {{element.packageId}} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="packageCode">
+        <th mat-header-cell *matHeaderCellDef> Code </th>
+        <td mat-cell *matCellDef="let element"> {{element.packageCode}} </td>
+      </ng-container>
+
+      <!-- Name Column -->
+      <ng-container matColumnDef="packageTitle">
+        <th mat-header-cell *matHeaderCellDef> Package Name </th>
+        <td mat-cell *matCellDef="let element"> 
+          <span class="fw-bold">{{element.packageTitle}}</span>
+          <span *ngIf="element.magazineCoverImage" class="badge bg-success bg-opacity-10 text-success border border-success-subtle px-2 py-1 rounded-pill ms-2" style="font-size: 11px;">
+            <i class="bi bi-image-fill me-1"></i>Cover Set
+          </span>
+        </td>
+      </ng-container>
+
+      <!-- Assigned Agent Column -->
+      <ng-container matColumnDef="assignedAgent">
+        <th mat-header-cell *matHeaderCellDef> Executed By </th>
+        <td mat-cell *matCellDef="let element">
+          <span *ngIf="element.agentName" class="badge bg-info bg-opacity-10 text-info border border-info-subtle px-2 py-1 rounded-pill">
+            <i class="bi bi-person-fill me-1"></i>{{element.agentName}}
+          </span>
+          <span *ngIf="!element.agentName" class="text-muted fst-italic">Unassigned</span>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="duration">
+        <th mat-header-cell *matHeaderCellDef> Duration </th>
+        <td mat-cell *matCellDef="let element"> {{element.durationDays}}D / {{element.durationNight}}N </td>
+      </ng-container>
+
+      <!-- Actions Column -->
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef class="text-center"> Actions </th>
+        <td mat-cell *matCellDef="let element" class="text-center">
+          <button mat-raised-button color="primary" class="me-2" (click)="viewDetails(element.packageId)">
+            <mat-icon>visibility</mat-icon> Details
+          </button>
+          <button mat-raised-button style="background-color:#ff9800; color:white;" class="me-2" (click)="clonePackage(element.packageId)">
+            <mat-icon>content_copy</mat-icon> Clone
+          </button>
+          <button mat-raised-button color="accent" class="me-2"
+                  (click)="downloadReport(element.packageId, element.packageCode)"
+                  [disabled]="isDownloading[element.packageId]">
+            <span *ngIf="!isDownloading[element.packageId]"><i class="bi bi-file-earmark-pdf-fill me-1"></i> View Report</span>
+            <span *ngIf="isDownloading[element.packageId]"><span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Generating...</span>
+          </button>
+          
+          <button mat-raised-button style="background-color: #0d9488; color: white;" class="me-2"
+                  (click)="openCoverModal(element)">
+            <mat-icon>photo_camera</mat-icon> Cover
+          </button>
+
+          <button mat-raised-button style="background-color: #9c27b0; color: white;" class="me-2"
+                  (click)="downloadMagazine(element.packageId, element.packageCode)"
+                  [disabled]="isDownloadingMagazine[element.packageId]">
+            <span *ngIf="!isDownloadingMagazine[element.packageId]"><i class="bi bi-journal-richtext me-1"></i> Tour Magazine</span>
+            <span *ngIf="isDownloadingMagazine[element.packageId]"><span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Generating...</span>
+          </button>
+          <button mat-raised-button color="warn" (click)="deletePackage(element.packageId)">
+            <mat-icon>delete</mat-icon> Delete
+          </button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+
+    <div *ngIf="completedPackages.length === 0" class="text-center py-5 text-muted">
+      <i class="bi bi-inbox fs-1 d-block mb-3"></i>
+      <h5>No completed tour packages found</h5>
+      <p>When an agent completes all activities for a package, it will appear here.</p>
+    </div>
+  </mat-card>
+</div>

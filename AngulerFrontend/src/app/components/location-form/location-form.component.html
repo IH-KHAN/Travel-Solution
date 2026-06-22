@@ -1,0 +1,69 @@
+<div class="container mt-4" style="max-width:800px">
+  <div class="d-flex align-items-center gap-2 mb-4">
+    <button mat-icon-button (click)="cancel()" matTooltip="Back to Tour Spots">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <div>
+      <h2 class="fw-bold mb-0">{{ isEditMode ? 'Edit District Locations' : 'Add Locations' }}</h2>
+      <p class="text-muted small mb-0">{{ isEditMode ? 'Update existing locations for the district' : 'Add new travel locations grouped by district' }}</p>
+    </div>
+  </div>
+
+  <form [formGroup]="locationForm" (ngSubmit)="onSubmit()" class="d-flex flex-column gap-3">
+    <mat-card class="shadow-sm p-2">
+      <mat-card-content>
+        <h3 class="fw-semibold">1. Select District</h3>
+        <mat-form-field appearance="outline" class="w-100 mt-2">
+          <mat-label>District</mat-label>
+          <mat-icon matPrefix>domain</mat-icon>
+          <mat-select formControlName="districtId" (selectionChange)="onDistrictChange($event.value)">
+            <mat-option *ngFor="let dist of districts" [value]="dist.districtId">
+              {{ dist.districtName }}
+            </mat-option>
+          </mat-select>
+          <mat-error *ngIf="locationForm.get('districtId')?.hasError('required')">Please select a district</mat-error>
+        </mat-form-field>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="shadow-sm p-2">
+      <mat-card-content>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h3 class="fw-semibold mb-0">2. Manage Locations</h3>
+          <button type="button" mat-stroked-button color="primary" (click)="addLocation()">
+            <mat-icon>add</mat-icon> Add Row
+          </button>
+        </div>
+
+        <div formArrayName="locations">
+          <div *ngIf="locations.length === 0" class="text-center text-muted py-4 bg-light rounded">
+            No locations added yet. Click "Add Row" to begin.
+          </div>
+
+          <div *ngFor="let loc of locations.controls; let i = index" [formGroupName]="i" class="d-flex gap-3 align-items-center mb-2">
+            <mat-form-field appearance="outline" class="w-100 mb-0">
+              <mat-label>Location Name</mat-label>
+              <mat-icon matPrefix>location_on</mat-icon>
+              <input matInput formControlName="locationName" placeholder="e.g. Marine Drive">
+              <mat-error *ngIf="loc.get('locationName')?.hasError('required')">Required</mat-error>
+            </mat-form-field>
+
+            <button type="button" mat-icon-button color="warn" (click)="removeLocation(i)" matTooltip="Remove row">
+              <mat-icon>remove_circle_outline</mat-icon>
+            </button>
+          </div>
+        </div>
+
+        <mat-divider class="my-4"></mat-divider>
+
+        <div class="d-flex gap-2 justify-content-end">
+          <button type="button" mat-stroked-button (click)="cancel()">Cancel</button>
+          <button type="submit" mat-raised-button color="primary" [disabled]="locationForm.invalid || isSaving">
+            <mat-icon>save</mat-icon>
+            {{ isSaving ? 'Saving...' : 'Save All Changes' }}
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </form>
+</div>

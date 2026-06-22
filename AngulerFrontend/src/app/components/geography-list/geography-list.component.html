@@ -1,0 +1,50 @@
+<div class="container-fluid mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold">Geography Management (Divisions)</h2>
+    <button mat-raised-button color="primary" routerLink="/geographies/new">
+      <mat-icon>add</mat-icon> Add New Division
+    </button>
+  </div>
+
+  <mat-card class="shadow-sm">
+    <table mat-table [dataSource]="divisions" class="w-100">
+      
+      <!-- ID Column -->
+      <ng-container matColumnDef="divisionId">
+        <th mat-header-cell *matHeaderCellDef> ID </th>
+        <td mat-cell *matCellDef="let element"> {{element.divisionId}} </td>
+      </ng-container>
+
+      <!-- Name Column -->
+      <ng-container matColumnDef="divisionName">
+        <th mat-header-cell *matHeaderCellDef> Division Name </th>
+        <td mat-cell *matCellDef="let element"> 
+          <span class="fw-bold">{{element.divisionName}}</span>
+          <div class="text-muted small" *ngIf="element.districts?.length">
+            Districts: <span *ngFor="let dist of element.districts; let last=last">{{dist.districtName}}{{last ? '' : ', '}}</span>
+          </div>
+        </td>
+      </ng-container>
+
+      <!-- Actions Column -->
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef class="text-end"> Actions </th>
+        <td mat-cell *matCellDef="let element" class="text-end">
+          <button mat-icon-button color="primary" (click)="editDivision(element.divisionId)" title="Edit">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button mat-icon-button color="warn" (click)="deleteDivision(element.divisionId)" title="Delete">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+
+    <div *ngIf="divisions.length === 0" class="p-4 text-center text-muted">
+      No divisions found. Click "Add New Division" to create one.
+    </div>
+  </mat-card>
+</div>

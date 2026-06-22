@@ -1,0 +1,36 @@
+<div class="container-fluid mt-4 mb-5">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold"><mat-icon class="align-middle">map</mat-icon> Geography & Tour Spots Dashboard</h2>
+  </div>
+
+  <mat-tab-group animationDuration="0ms" class="shadow-sm border rounded bg-white" [selectedIndex]="selectedTab">
+    
+    <mat-tab>
+      <ng-template mat-tab-label>
+        <mat-icon class="me-2">language</mat-icon> Divisions
+      </ng-template>
+      <div class="p-3">
+        <app-geography-list></app-geography-list>
+      </div>
+    </mat-tab>
+
+    <mat-tab>
+      <ng-template mat-tab-label>
+        <mat-icon class="me-2">place</mat-icon> Locations
+      </ng-template>
+      <div class="p-3">
+        <app-location-list></app-location-list>
+      </div>
+    </mat-tab>
+
+    <mat-tab>
+      <ng-template mat-tab-label>
+        <mat-icon class="me-2">camera_alt</mat-icon> Tour Spots
+      </ng-template>
+      <div class="p-3">
+        <app-tour-spot-list></app-tour-spot-list>
+      </div>
+    </mat-tab>
+
+  </mat-tab-group>
+</div>

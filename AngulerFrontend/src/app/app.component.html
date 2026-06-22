@@ -1,0 +1,4 @@
+<app-navbar *ngIf="!router.url.startsWith('/login')"></app-navbar>
+<div [ngClass]="{'container-fluid mt-4': !router.url.startsWith('/login')}">
+  <router-outlet></router-outlet>
+</div>

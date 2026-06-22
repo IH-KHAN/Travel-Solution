@@ -1,0 +1,71 @@
+<h2 mat-dialog-title class="dialog-title">
+  <div class="title-left">
+    <mat-icon class="title-icon">tour</mat-icon>
+    <div>
+      <div class="title-main">{{ package?.packageTitle }}</div>
+      <div class="title-sub">{{ package?.packageCode }} &bull; {{ ((package?.packagePrice || 0) - (package?.discount || 0) + (package?.markUpAmount || 0)) |
+        currency:'BDT':'symbol':'1.0-0' }}</div>
+    </div>
+  </div>
+  <button mat-icon-button (click)="close()" class="close-btn">
+    <mat-icon>close</mat-icon>
+  </button>
+</h2>
+
+<mat-dialog-content class="dialog-body">
+  <!-- Package Info -->
+  <div class="info-grid">
+    <div class="info-chip" *ngIf="package?.description">
+      <mat-icon>info</mat-icon>
+      <span>{{ package?.description }}</span>
+    </div>
+    <div class="status-badges">
+      <span class="badge" [class.active]="package?.isActive" [class.draft]="!package?.isActive">
+        {{ package?.isActive ? '✓ Active' : '● Draft' }}
+      </span>
+    </div>
+  </div>
+
+  <mat-divider class="my-3"></mat-divider>
+
+  <!-- Activities -->
+  <div class="section-header">
+    <mat-icon>local_activity</mat-icon>
+    <h3>Activities <span class="count-badge">{{ package?.activities?.length || 0 }}</span></h3>
+  </div>
+
+  <div *ngIf="!package?.activities || package.activities.length === 0" class="empty-activities">
+    <mat-icon>event_busy</mat-icon>
+    <p>No activities found for this package.</p>
+  </div>
+
+  <div class="activities-timeline" *ngIf="package?.activities?.length > 0">
+    <div class="activity-item" *ngFor="let act of package.activities; let i = index">
+      <div class="timeline-dot" [style.background]="getActivityColor(act.activityType)">
+        <mat-icon>{{ getActivityIcon(act.activityType) }}</mat-icon>
+      </div>
+      <div class="activity-card">
+        <div class="activity-header">
+          <span class="activity-name">{{ act.activityName }}</span>
+          <span class="activity-type-badge" [style.background]="getActivityColor(act.activityType) + '22'"
+            [style.color]="getActivityColor(act.activityType)">
+            {{ act.activityType }}
+          </span>
+        </div>
+        <div class="activity-meta">
+          <span *ngIf="act.plannedTime">
+            <mat-icon>schedule</mat-icon> {{ parseDate(act.plannedTime) | date:'MMM d, yyyy • HH:mm' }}
+          </span>
+          <span *ngIf="act.projectedCost">
+            <mat-icon>attach_money</mat-icon> {{ act.projectedCost | currency:'BDT':'symbol':'1.0-0' }}
+          </span>
+        </div>
+        <p class="activity-description" *ngIf="act.activityDescription">{{ act.activityDescription }}</p>
+      </div>
+    </div>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="dialog-footer">
+  <button mat-raised-button color="primary" (click)="close()">Done</button>
+</mat-dialog-actions>

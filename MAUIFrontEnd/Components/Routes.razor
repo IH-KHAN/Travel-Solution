@@ -1,0 +1,20 @@
+<CascadingAuthenticationState>
+    <Router AppAssembly="typeof(MauiProgram).Assembly" NotFoundPage="typeof(Pages.NotFound)">
+        <Found Context="routeData">
+            <AuthorizeRouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)">
+                <Authorizing>
+                    <div style="display:flex;justify-content:center;align-items:center;height:100vh;background:#0f172a;">
+                        <div style="text-align:center;color:#2dd4bf;">
+                            <div class="spinner-border" role="status" style="width:3rem;height:3rem;"></div>
+                            <p style="margin-top:1rem;font-weight:600;letter-spacing:.05em;">Verifying session...</p>
+                        </div>
+                    </div>
+                </Authorizing>
+                <NotAuthorized>
+                    <RedirectToLogin />
+                </NotAuthorized>
+            </AuthorizeRouteView>
+            <FocusOnNavigate RouteData="routeData" Selector="h1" />
+        </Found>
+    </Router>
+</CascadingAuthenticationState>

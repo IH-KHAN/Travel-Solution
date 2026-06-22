@@ -1,0 +1,162 @@
+<div class="modal-container-custom">
+  <!-- Header -->
+  <div class="modal-header-custom">
+    <h3><i class="bi bi-journal-richtext me-2"></i>Design Memories for {{ data.activityName }}</h3>
+    <div class="header-actions">
+      <button mat-flat-button color="accent" (click)="previewFullMagazine()" class="me-3" matTooltip="Preview full compiled magazine PDF in new tab">
+        <mat-icon class="me-1">menu_book</mat-icon> Preview Entire Magazine
+      </button>
+      <button mat-icon-button (click)="onCancel()" style="color: white;">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+  </div>
+
+  <div class="modal-body-custom">
+    <!-- Left Column: Form Editor (Scrollable) -->
+    <div class="editor-pane">
+      <form>
+        <!-- Template Selection Grid -->
+        <div class="section-title">1. Select Editorial Page Style</div>
+        <div class="template-grid">
+          <div *ngFor="let temp of templates" 
+               class="template-card" 
+               [class.active]="selectedTemplate === temp.id"
+               (click)="selectTemplate(temp.id)">
+            <div class="template-radio-dot"></div>
+            <div class="template-details">
+              <span class="template-name">{{ temp.name }}</span>
+              <span class="template-desc">{{ temp.desc }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-title mt-4">2. Memory Details</div>
+        <mat-form-field appearance="outline" class="w-100 mb-3">
+          <mat-label>Memory Title</mat-label>
+          <input matInput [(ngModel)]="title" (ngModelChange)="triggerPreview()" name="title" required placeholder="e.g. Exploring the Colosseum">
+          <mat-icon matSuffix>title</mat-icon>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="w-100 mb-3">
+          <mat-label>Description / Story</mat-label>
+          <textarea matInput [(ngModel)]="description" (ngModelChange)="triggerPreview()" name="description" rows="5" required placeholder="Share the highlights of this activity..."></textarea>
+        </mat-form-field>
+
+        <div class="section-title mt-4">3. Tour Pictures</div>
+        <div class="file-upload-section mb-3">
+          <div class="upload-area">
+            <input type="file" multiple (change)="onFileSelected($event)" accept="image/*" class="file-input">
+            <i class="bi bi-cloud-arrow-up text-primary" style="font-size: 2rem;"></i>
+            <p class="mt-2 mb-0 fw-semibold text-secondary">Drag and drop images here or click to browse</p>
+            <small class="text-muted">Supports JPG, PNG (Max 5MB each)</small>
+          </div>
+        </div>
+
+        <!-- Selected Files Preview -->
+        <div *ngIf="selectedFiles.length > 0" class="mt-3">
+          <h6 style="color: #64748b; font-size: 0.9rem; font-weight: 600;">New Images ({{ selectedFiles.length }})</h6>
+          <div class="image-previews-list">
+            <div *ngFor="let file of selectedFiles; let i = index" class="image-preview-badge">
+              <i class="bi bi-image text-primary me-2"></i>
+              <span class="file-name">{{ file.name }}</span>
+              <button type="button" (click)="removeFile(i)" class="remove-btn">
+                <i class="bi bi-x-circle-fill"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Existing Files Preview -->
+        <div *ngIf="data.activityPictures && data.activityPictures.length > 0" class="mt-3">
+          <h6 style="color: #64748b; font-size: 0.9rem; font-weight: 600;">Uploaded Images ({{ data.activityPictures.length }})</h6>
+          <div class="uploaded-previews-grid">
+            <div *ngFor="let pic of data.activityPictures; let i = index" class="uploaded-preview-card">
+              <img [src]="'http://localhost:5246/' + pic.picUrl" alt="Uploaded Memory image">
+              <button type="button" (click)="deleteUploadedPicture(pic.activityPictureId, i)" class="delete-btn" matTooltip="Delete this image">
+                <i class="bi bi-trash-fill"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+        <!-- Section 4: Watermark Background Image -->
+        <div class="section-title mt-4">4. Watermark Background Image</div>
+        
+        <!-- Upload Watermark Image Option -->
+        <div class="file-upload-section mb-3">
+          <div class="upload-area">
+            <input type="file" (change)="onWatermarkSelected($event)" accept="image/*" class="file-input">
+            <i class="bi bi-patch-image text-accent" style="font-size: 2rem;"></i>
+            <p class="mt-2 mb-0 fw-semibold text-secondary">Click to choose a watermark background image</p>
+            <small class="text-muted">Supports JPG, PNG (Max 5MB)</small>
+          </div>
+        </div>
+
+        <!-- Opacity Slider -->
+        <div class="opacity-slider-section mb-3" *ngIf="watermarkFile || (existingWatermarkUrl && !clearWatermark)">
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <label class="fw-semibold text-secondary" style="font-size: 0.9rem;">Watermark Opacity: {{ getOpacityPercent() }}%</label>
+          </div>
+          <mat-slider min="0.05" max="1.0" step="0.05" class="w-100">
+            <input matSliderThumb [(ngModel)]="watermarkOpacity" (ngModelChange)="triggerPreview()" name="watermarkOpacity">
+          </mat-slider>
+        </div>
+
+        <!-- Watermark File/Existing Watermark Preview Card with Remove Button -->
+        <div *ngIf="(watermarkFile || existingWatermarkUrl) && !clearWatermark" class="watermark-preview-card p-3 mb-3 border rounded d-flex align-items-center justify-content-between bg-light">
+          <div class="d-flex align-items-center">
+            <i class="bi bi-file-image text-accent me-3" style="font-size: 1.5rem;"></i>
+            <div>
+              <div class="fw-semibold text-dark" style="font-size: 0.95rem; max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                {{ watermarkFile ? watermarkFile.name : 'Uploaded Watermark Background' }}
+              </div>
+              <div class="text-muted small">Opacity: {{ getOpacityPercent() }}%</div>
+            </div>
+          </div>
+          <button type="button" class="btn btn-outline-danger btn-sm d-flex align-items-center" (click)="removeWatermark()">
+            <i class="bi bi-trash-fill me-1"></i> Remove
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Right Column: Live PDF Preview -->
+    <div class="preview-pane">
+      <div class="preview-header-bar">
+        <div class="preview-title"><i class="bi bi-eye-fill me-2 text-primary"></i>Live Page Layout Preview</div>
+        <div class="preview-status" *ngIf="isPreviewLoading">
+          <span class="spinner-border spinner-border-sm text-primary me-2" role="status"></span>
+          Rendering...
+        </div>
+        <div class="preview-status text-success" *ngIf="!isPreviewLoading">
+          <i class="bi bi-check-circle-fill me-1"></i> Up to date
+        </div>
+      </div>
+      
+      <div class="iframe-container">
+        <iframe *ngIf="previewUrl" [src]="previewUrl" type="application/pdf"></iframe>
+        <div class="no-preview" *ngIf="!previewUrl && !isPreviewLoading">
+          <i class="bi bi-file-earmark-pdf text-muted" style="font-size: 4rem;"></i>
+          <p class="mt-3 text-secondary fw-semibold">No Preview Available</p>
+          <p class="text-muted small px-4 text-center">Fill in the title, description, and choose a layout to start generating a preview.</p>
+        </div>
+        <div class="no-preview" *ngIf="!previewUrl && isPreviewLoading">
+          <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;"></div>
+          <p class="mt-3 text-secondary fw-semibold">Generating layout preview...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer Actions -->
+  <div class="modal-footer-custom">
+    <button mat-button (click)="onCancel()" class="me-2">Cancel</button>
+    <button mat-raised-button color="primary" (click)="submitMemory()" [disabled]="isSubmitting" class="save-btn">
+      <span *ngIf="!isSubmitting">Save & Apply to Magazine</span>
+      <span *ngIf="isSubmitting" class="d-flex align-items-center">
+        <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+        Saving...
+      </span>
+    </button>
+  </div>
+</div>

@@ -1,0 +1,351 @@
+.modal-container-custom {
+  display: flex;
+  flex-direction: column;
+  height: 85vh; /* Fixed height for modal viewport */
+  max-height: 900px;
+  background-color: #fcfcfc;
+  overflow: hidden;
+}
+
+.modal-header-custom {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  padding: 1rem 1.5rem;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.modal-header-custom h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+}
+
+.modal-body-custom {
+  display: flex;
+  flex: 1;
+  overflow: hidden; /* Scroll individually inside columns */
+}
+
+/* Editor Panel (Left Column) */
+.editor-pane {
+  width: 50%;
+  padding: 1.5rem 2rem;
+  overflow-y: auto;
+  border-right: 1px solid #e2e8f0;
+  background-color: #ffffff;
+}
+
+/* Preview Panel (Right Column) */
+.preview-pane {
+  width: 50%;
+  padding: 1.5rem 2rem;
+  background-color: #f1f5f9;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.preview-header-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #cbd5e1;
+}
+
+.preview-title {
+  font-weight: 600;
+  color: #334155;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+}
+
+.preview-status {
+  font-size: 0.8rem;
+  font-weight: 550;
+  display: flex;
+  align-items: center;
+}
+
+.iframe-container {
+  flex: 1;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border: 1px solid #cbd5e1;
+  background-color: #ffffff;
+  position: relative;
+}
+
+.iframe-container iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+.no-preview {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #f8fafc;
+}
+
+/* Section Title styling */
+.section-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #1e293b;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-bottom: 0.75rem;
+  border-left: 3px solid #0d9488;
+  padding-left: 8px;
+}
+
+/* Template Grid Layout */
+.template-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-bottom: 1rem;
+  max-height: 260px;
+  overflow-y: auto;
+  padding-right: 5px;
+  border: 1px solid #f1f5f9;
+  border-radius: 6px;
+  padding: 8px;
+  background-color: #fafafa;
+}
+
+/* Custom scrollbar for templates list */
+.template-grid::-webkit-scrollbar {
+  width: 6px;
+}
+
+.template-grid::-webkit-scrollbar-track {
+  background: #f1f5f9; 
+  border-radius: 3px;
+}
+
+.template-grid::-webkit-scrollbar-thumb {
+  background: #cbd5e1; 
+  border-radius: 3px;
+}
+
+.template-grid::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8; 
+}
+
+.template-card {
+  display: flex;
+  align-items: center;
+  padding: 10px 12px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  background-color: #ffffff;
+  position: relative;
+}
+
+.template-card:hover {
+  border-color: #99f6e4;
+  background-color: #f0fdfa;
+}
+
+.template-card.active {
+  border-color: #0d9488;
+  background-color: #f0fdfa;
+  box-shadow: 0 2px 6px rgba(13, 148, 136, 0.15);
+}
+
+.template-radio-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 2px solid #94a3b8;
+  margin-right: 10px;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.template-card.active .template-radio-dot {
+  border-color: #0d9488;
+  background-color: #0d9488;
+}
+
+.template-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.template-name {
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: #1e293b;
+}
+
+.template-desc {
+  font-size: 0.72rem;
+  color: #64748b;
+  margin-top: 2px;
+  line-height: 1.25;
+}
+
+/* File Upload drag and drop */
+.upload-area {
+  border: 2px dashed #cbd5e1;
+  border-radius: 8px;
+  padding: 1.5rem;
+  text-align: center;
+  background-color: #f8fafc;
+  transition: all 0.3s ease;
+  position: relative;
+  cursor: pointer;
+}
+
+.upload-area:hover {
+  border-color: #0d9488;
+  background-color: #f0fdfa;
+}
+
+.file-input {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+/* Image Badge styling */
+.image-previews-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.image-preview-badge {
+  position: relative;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 6px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  width: 100%;
+  max-width: 320px;
+}
+
+.image-preview-badge .file-name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-grow: 1;
+  margin-right: 10px;
+}
+
+.image-preview-badge .remove-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: #ef4444;
+  display: flex;
+  align-items: center;
+}
+
+/* Uploaded Images Grid */
+.uploaded-previews-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.uploaded-preview-card {
+  position: relative;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.uploaded-preview-card img {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.uploaded-preview-card .delete-btn {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: #dc2626;
+  border: none;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: white;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  font-size: 0.7rem;
+}
+
+/* Modal Footer Actions */
+.modal-footer-custom {
+  padding: 1rem 2rem;
+  border-top: 1px solid #e2e8f0;
+  background-color: #ffffff;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.modal-footer-custom button {
+  padding: 0.4rem 1.5rem;
+}
+
+.save-btn {
+  background-color: #0d9488;
+  color: white;
+}
+
+.save-btn:hover {
+  background-color: #0f766e;
+}
+
+/* Override dialog custom bounds */
+::ng-deep .mat-mdc-dialog-container .mdc-dialog__surface {
+  border-radius: 12px !important;
+  overflow: hidden !important;
+}

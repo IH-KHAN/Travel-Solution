@@ -1,0 +1,490 @@
+@page "/completed-tours"
+@attribute [Authorize]
+@using MAUIFrontEnd.Models
+@using System.Net.Http.Json
+@inject HttpClient Http
+
+<div class="container-fluid py-4">
+    <!-- Header Row -->
+    <div class="row align-items-center mb-4">
+        <div class="col-md-6">
+            <h2 class="fw-bold text-success mb-1">
+                <i class="bi bi-check-circle-fill me-2"></i>Completed Tour Packages
+            </h2>
+            <p class="text-muted mb-0">View completed tour analytics, activity logs, and download PDF reports.</p>
+        </div>
+        <div class="col-md-6 mt-3 mt-md-0">
+            <div class="search-container">
+                <i class="bi bi-search text-muted"></i>
+                <input type="text" class="search-input" placeholder="Search by title or code..." @bind="SearchQuery" @oninput="OnSearchInput" />
+            </div>
+        </div>
+    </div>
+
+    <!-- Error Alert -->
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>@errorMessage
+            <button type="button" class="btn-close" @onclick="() => errorMessage = string.Empty"></button>
+        </div>
+    }
+
+    <!-- Loading Spinner -->
+    @if (isLoading)
+    {
+        <div class="d-flex flex-column justify-content-center align-items-center py-5 my-5">
+            <div class="spinner-border text-teal" role="status" style="width: 3rem; height: 3rem; color: var(--ts-primary);">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-3 text-muted fw-medium">Fetching completed packages...</p>
+        </div>
+    }
+    else if (filteredPackages == null || !filteredPackages.Any())
+    {
+        <!-- Empty State -->
+        <div class="text-center py-5 my-5">
+            <i class="bi bi-folder-x text-muted" style="font-size: 4rem;"></i>
+            <h4 class="mt-3 fw-bold text-secondary">No Completed Packages Found</h4>
+            <p class="text-muted">There are no completed tour packages matching your search criteria.</p>
+        </div>
+    }
+    else
+    {
+        <!-- Grid of Packages -->
+        <div class="package-grid">
+            @foreach (var pkg in filteredPackages)
+            {
+                <div class="package-card">
+                    <div class="package-card-header">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <span class="package-code-badge">@pkg.PackageCode</span>
+                            <span class="badge bg-success-subtle text-success border border-success-subtle fw-semibold rounded-pill px-2.5 py-1">Completed</span>
+                        </div>
+                        <h4 class="package-card-title mt-2">@pkg.PackageTitle</h4>
+                    </div>
+                    <div class="package-card-body">
+                        <div class="package-meta-item">
+                            <i class="bi bi-clock-history"></i>
+                            <span><strong>Duration:</strong> @pkg.DurationDays Days / @pkg.DurationNight Nights</span>
+                        </div>
+                        <div class="package-meta-item">
+                            <i class="bi bi-people-fill"></i>
+                            <span><strong>Total Travellers:</strong> @(pkg.MaxTourist - pkg.AvailableVacancy) / @pkg.MaxTourist</span>
+                        </div>
+                        <div class="package-meta-item">
+                            <i class="bi bi-person-badge"></i>
+                            <span><strong>Agent:</strong> @(pkg.AgentName ?? pkg.AssignedAgentName ?? "Unassigned")</span>
+                        </div>
+                        <div class="mt-auto pt-3 d-flex justify-content-between align-items-center">
+                            <span class="text-muted small">Final Price:</span>
+                            <span class="price-display">৳@((pkg.PackagePrice - pkg.Discount + pkg.MarkUpAmount).ToString("N2"))</span>
+                        </div>
+                    </div>
+                    <div class="package-card-footer d-flex flex-wrap gap-2">
+                        <button class="ts-btn-secondary flex-grow-1" @onclick="() => ViewDetails(pkg.PackageId)">
+                            <i class="bi bi-info-circle"></i> Details
+                        </button>
+                        <button class="ts-btn-secondary flex-grow-1" @onclick="() => DownloadReport(pkg.PackageId, pkg.PackageCode ?? pkg.PackageId.ToString())" disabled="@GetIsDownloading(pkg.PackageId)">
+                            @if (GetIsDownloading(pkg.PackageId))
+                            {
+                                <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                                <span>Loading...</span>
+                            }
+                            else
+                            {
+                                <i class="bi bi-file-earmark-pdf"></i>
+                                <span>Report</span>
+                            }
+                        </button>
+                        <button class="ts-btn-primary flex-grow-1" @onclick="() => DownloadMagazine(pkg.PackageId, pkg.PackageCode ?? pkg.PackageId.ToString())" disabled="@GetIsDownloadingMagazine(pkg.PackageId)">
+                            @if (GetIsDownloadingMagazine(pkg.PackageId))
+                            {
+                                <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                                <span>Loading...</span>
+                            }
+                            else
+                            {
+                                <i class="bi bi-journal-album"></i>
+                                <span>Magazine</span>
+                            }
+                        </button>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+<!-- Glassmorphism Details Modal -->
+@if (showDetailsModal)
+{
+    <div class="glass-modal-backdrop" @onclick="CloseDetails">
+        <div class="glass-modal-container" @onclick:stopPropagation>
+            <!-- Modal Header -->
+            <div class="glass-modal-header">
+                <h3 class="glass-modal-title">
+                    <i class="bi bi-check2-circle me-2"></i>Completed Tour Details
+                </h3>
+                <button type="button" class="close-circle-btn" @onclick="CloseDetails">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="glass-modal-body">
+                @if (isLoadingDetails)
+                {
+                    <div class="d-flex flex-column justify-content-center align-items-center py-5 my-5">
+                        <div class="spinner-border text-primary" role="status" style="width: 2.5rem; height: 2.5rem;">
+                            <span class="visually-hidden">Loading details...</span>
+                        </div>
+                        <p class="mt-3 text-muted">Fetching package execution details...</p>
+                    </div>
+                }
+                else if (selectedDetails != null)
+                {
+                    <!-- Overview Row -->
+                    <div class="row g-4 align-items-center mb-4">
+                        <div class="col-md-7">
+                            <h4 class="fw-bold text-secondary mb-1">@selectedDetails.PackageTitle</h4>
+                            <span class="package-code-badge mb-3">@selectedDetails.PackageCode</span>
+                            
+                            <div class="modal-overview-meta mt-2">
+                                <div>
+                                    <i class="bi bi-clock-history me-2 text-muted"></i>
+                                    <strong>Duration:</strong> @selectedDetails.DurationDays Days / @selectedDetails.DurationNight Nights
+                                </div>
+                                <div>
+                                    <i class="bi bi-people-fill me-2 text-muted"></i>
+                                    <strong>Travellers:</strong> @selectedDetails.TotalTravellers <span class="text-muted">(Capacity: @selectedDetails.MaxTourist)</span>
+                                </div>
+                                <div>
+                                    <i class="bi bi-tags-fill me-2 text-muted"></i>
+                                    <strong>Base Price:</strong> ৳@selectedDetails.PackagePrice.ToString("N2")
+                                </div>
+                                <div class="mt-1">
+                                    <i class="bi bi-cash-stack me-2 text-success"></i>
+                                    <strong>Total Markup:</strong>
+                                    <span class="revenue-pill ms-1">৳@selectedDetails.TotalMarkup.ToString("N2")</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-5">
+                            <div class="execution-team-card">
+                                <div class="execution-team-title">Execution Team</div>
+                                <div class="team-member-info">
+                                    <i class="bi bi-person-circle"></i>
+                                    <div><strong>Agent:</strong> @(selectedDetails.AgentName ?? "Unassigned")</div>
+                                </div>
+                                @if (!string.IsNullOrEmpty(selectedDetails.AgentEmail))
+                                {
+                                    <div class="team-member-info ms-4.5">
+                                        <i class="bi bi-envelope text-muted me-1"></i>
+                                        <span class="text-muted small">@selectedDetails.AgentEmail</span>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Financial Summary Cards -->
+                    <div class="financial-grid">
+                        <div class="fin-card card-projected">
+                            <div>
+                                <div class="card-label">Estimated Total Package Cost</div>
+                                <div class="card-value">৳@selectedDetails.TotalProjectedCost.ToString("N2")</div>
+                            </div>
+                            <div class="card-subtitle">Initial Estimated Budget</div>
+                        </div>
+
+                        <div class="fin-card card-revenue">
+                            <div>
+                                <div class="card-label">Total Revenue</div>
+                                <div class="card-value">৳@selectedDetails.TotalRevenue.ToString("N2")</div>
+                            </div>
+                            <div class="card-subtitle">Total Bookings Revenue</div>
+                        </div>
+
+                        <div class="fin-card card-total-cost">
+                            <div>
+                                <div class="card-label">Total Cost</div>
+                                <div class="card-value">৳@CalculateTotalCost(selectedDetails).ToString("N2")</div>
+                            </div>
+                            <div class="card-subtitle">Total Incurred Execution Cost</div>
+                        </div>
+
+                        <div class="fin-card @(selectedDetails.CalculatedProfit >= 0 ? "card-profit-positive" : "card-profit-negative")">
+                            <div>
+                                <div class="card-label">Net Profit</div>
+                                <div class="card-value">৳@selectedDetails.CalculatedProfit.ToString("N2")</div>
+                            </div>
+                            <div class="card-subtitle">Total Revenue − Total Cost</div>
+                        </div>
+                    </div>
+
+                    <!-- Activity Execution Log Table -->
+                    <div class="activity-log-title">
+                        <i class="bi bi-card-checklist text-indigo"></i>
+                        <span>Activity Execution Log</span>
+                    </div>
+                    <div class="activity-table-wrapper">
+                        <table class="activity-table">
+                            <thead>
+                                <tr>
+                                    <th>Activity</th>
+                                    <th>Type</th>
+                                    <th>Planned Time</th>
+                                    <th>Actual Time</th>
+                                    <th>Proj. Cost</th>
+                                    <th>Actual Cost</th>
+                                    <th>Agent Remarks</th>
+                                    <th class="text-center">Invoice</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var act in selectedDetails.Activities)
+                                {
+                                    <tr>
+                                        <td class="fw-semibold text-secondary">@act.ActivityName</td>
+                                        <td>
+                                            <span class="act-badge @GetActivityBadgeClass(act.ActivityType)">
+                                                @(act.ActivityType == "AgentUnplanned" ? "Unplanned" : act.ActivityType)
+                                            </span>
+                                        </td>
+                                        <td class="text-muted small">@act.PlannedTime.ToString("M/d/yy, HH:mm")</td>
+                                        <td>
+                                            @if (act.ActualTime.HasValue)
+                                            {
+                                                <span class="text-success fw-medium small">@act.ActualTime.Value.ToString("M/d/yy, HH:mm")</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted small">N/A</span>
+                                            }
+                                        </td>
+                                        <td class="text-muted">৳@act.ProjectedCost.ToString("N2")</td>
+                                        <td class="fw-semibold">৳@act.ActualCost.ToString("N2")</td>
+                                        <td class="text-muted small font-italic">@(act.AgentRemarks ?? "—")</td>
+                                        <td class="text-center">
+                                            @if (!string.IsNullOrEmpty(act.InvoiceImage))
+                                            {
+                                                <a href="http://localhost:5246@(act.InvoiceImage)" target="_blank" class="invoice-btn">
+                                                    <i class="bi bi-receipt"></i>
+                                                </a>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">—</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else if (!string.IsNullOrEmpty(detailsError))
+                {
+                    <div class="alert alert-danger my-3" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>@detailsError
+                    </div>
+                }
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="glass-modal-footer">
+                <button type="button" class="btn btn-secondary px-4 py-2 rounded-3 border-0 fw-semibold bg-danger text-white" @onclick="CloseDetails">Close</button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private List<PackageDTO>? completedPackages;
+    private List<PackageDTO>? filteredPackages;
+    private string SearchQuery = "";
+    private bool isLoading = true;
+    private string errorMessage = "";
+    private Dictionary<int, bool> isDownloading = new();
+    private Dictionary<int, bool> isDownloadingMagazine = new();
+
+    // Details Modal State
+    private bool showDetailsModal = false;
+    private CompletedPackageDetailDTO? selectedDetails;
+    private bool isLoadingDetails = false;
+    private string detailsError = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await FetchCompletedPackages();
+    }
+
+    private async Task FetchCompletedPackages()
+    {
+        isLoading = true;
+        errorMessage = "";
+        try
+        {
+            completedPackages = await Http.GetFromJsonAsync<List<PackageDTO>>("Packages/Completed");
+            filteredPackages = completedPackages;
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Failed to load completed packages: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void OnSearchInput(ChangeEventArgs e)
+    {
+        SearchQuery = e.Value?.ToString() ?? "";
+        FilterPackages();
+    }
+
+    private void FilterPackages()
+    {
+        if (completedPackages == null) return;
+
+        if (string.IsNullOrWhiteSpace(SearchQuery))
+        {
+            filteredPackages = completedPackages;
+        }
+        else
+        {
+            filteredPackages = completedPackages
+                .Where(p => (p.PackageTitle != null && p.PackageTitle.Contains(SearchQuery, StringComparison.OrdinalIgnoreCase)) ||
+                            (p.PackageCode != null && p.PackageCode.Contains(SearchQuery, StringComparison.OrdinalIgnoreCase)))
+                .ToList();
+        }
+    }
+
+    private async Task ViewDetails(int packageId)
+    {
+        showDetailsModal = true;
+        isLoadingDetails = true;
+        detailsError = "";
+        selectedDetails = null;
+
+        try
+        {
+            selectedDetails = await Http.GetFromJsonAsync<CompletedPackageDetailDTO>($"Packages/Completed/{packageId}/Details");
+        }
+        catch (Exception ex)
+        {
+            detailsError = $"Failed to load package details: {ex.Message}";
+        }
+        finally
+        {
+            isLoadingDetails = false;
+        }
+    }
+
+    private void CloseDetails()
+    {
+        showDetailsModal = false;
+        selectedDetails = null;
+    }
+
+    private async Task DownloadReport(int packageId, string packageCode)
+    {
+        isDownloading[packageId] = true;
+        try
+        {
+            var response = await Http.GetAsync($"Packages/Completed/{packageId}/Report");
+            if (response.IsSuccessStatusCode)
+            {
+                var bytes = await response.Content.ReadAsByteArrayAsync();
+                var fileName = $"PackageReport_{packageCode}.pdf";
+                var filePath = Path.Combine(FileSystem.Current.CacheDirectory, fileName);
+                await File.WriteAllBytesAsync(filePath, bytes);
+
+                await Launcher.Default.OpenAsync(new OpenFileRequest
+                {
+                    Title = "Open Completed Tour Report",
+                    File = new ReadOnlyFile(filePath)
+                });
+            }
+            else
+            {
+                errorMessage = "Failed to download PDF report from server.";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error downloading report: {ex.Message}";
+        }
+        finally
+        {
+            isDownloading[packageId] = false;
+        }
+    }
+
+    private bool GetIsDownloading(int packageId)
+    {
+        return isDownloading.TryGetValue(packageId, out var downloading) && downloading;
+    }
+
+    private async Task DownloadMagazine(int packageId, string packageCode)
+    {
+        isDownloadingMagazine[packageId] = true;
+        try
+        {
+            var response = await Http.GetAsync($"Magazine/packages/{packageId}/download-pdf");
+            if (response.IsSuccessStatusCode)
+            {
+                var bytes = await response.Content.ReadAsByteArrayAsync();
+                var fileName = $"TourMagazine_{packageCode}.pdf";
+                var filePath = Path.Combine(FileSystem.Current.CacheDirectory, fileName);
+                await File.WriteAllBytesAsync(filePath, bytes);
+
+                await Launcher.Default.OpenAsync(new OpenFileRequest
+                {
+                    Title = "Open Completed Tour Magazine",
+                    File = new ReadOnlyFile(filePath)
+                });
+            }
+            else
+            {
+                errorMessage = "Failed to download Tour Magazine from server.";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error downloading magazine: {ex.Message}";
+        }
+        finally
+        {
+            isDownloadingMagazine[packageId] = false;
+        }
+    }
+
+    private bool GetIsDownloadingMagazine(int packageId)
+    {
+        return isDownloadingMagazine.TryGetValue(packageId, out var downloading) && downloading;
+    }
+
+    private decimal CalculateTotalCost(CompletedPackageDetailDTO details)
+    {
+        if (details == null) return 0;
+        return details.TotalActualCost;
+    }
+
+    private string GetActivityBadgeClass(string type)
+    {
+        return type switch
+        {
+            "SpotVisit" => "act-spot",
+            "Commission" => "act-commission",
+            "Transport" => "act-transport",
+            "Hotel" => "act-hotel",
+            "Meal" => "act-meal",
+            "MidwayBreak" => "act-midway",
+            "AgentUnplanned" or "Unplanned" => "act-unplanned",
+            _ => "act-other"
+        };
+    }
+}

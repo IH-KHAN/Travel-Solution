@@ -1,0 +1,135 @@
+@page "/login"
+@using System.Text.Json
+@inject HttpClient Http
+@inject MAUIFrontEnd.Services.CustomAuthStateProvider AuthStateProvider
+@inject NavigationManager NavigationManager
+
+<div class="login-page-bg">
+    <div class="glass-login-card">
+        <div class="text-center mb-4">
+            <i class="bi bi-airplane-engines-fill text-teal-accent display-4 d-block mb-2 pulse-animation"></i>
+            <h2 class="fw-bold mb-1" style="background: linear-gradient(135deg, #2dd4bf, #0d9488); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: -0.02em;">Travel Solution</h2>
+            <p class="small text-white-50">Mobile Administration & Travel Suite</p>
+        </div>
+
+        @if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <div class="alert alert-danger border-0 text-white rounded-3 p-3 mb-4 animate-fade-in" style="background-color: rgba(239, 68, 68, 0.25); border: 1px solid rgba(239, 68, 68, 0.4) !important;">
+                <i class="bi bi-exclamation-triangle-fill me-2 text-danger"></i> @errorMessage
+            </div>
+        }
+
+        <form @onsubmit="HandleLogin" @onsubmit:preventDefault>
+            <div class="ts-input-group">
+                <label for="email">Email Address</label>
+                <i class="bi bi-envelope ts-input-icon"></i>
+                <input type="email" id="email" class="ts-input-control text-white" placeholder="yourname@travel.com" @bind="email" required />
+            </div>
+
+            <div class="ts-input-group">
+                <label for="password">Password</label>
+                <i class="bi bi-lock ts-input-icon"></i>
+                <input type="password" id="password" class="ts-input-control text-white" placeholder="••••••••" @bind="password" required />
+            </div>
+
+            <button type="submit" class="btn btn-premium-teal w-100 py-3 mt-3 d-flex align-items-center justify-content-center" disabled="@isLoading">
+                @if (isLoading)
+                {
+                    <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                    <span>Verifying Credentials...</span>
+                }
+                else
+                {
+                    <i class="bi bi-box-arrow-in-right me-2"></i>
+                    <span>Sign In</span>
+                }
+            </button>
+        </form>
+        
+        <div class="text-center mt-4">
+            <span class="text-white-50 small">Secure endpoint: <code>/api/Users/login</code></span>
+        </div>
+    </div>
+</div>
+
+@code {
+    private string email = string.Empty;
+    private string password = string.Empty;
+    private string errorMessage = string.Empty;
+    private bool isLoading = false;
+
+    private async Task HandleLogin()
+    {
+        if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
+        {
+            errorMessage = "Please enter both Email and Password.";
+            return;
+        }
+
+        isLoading = true;
+        errorMessage = string.Empty;
+
+        try
+        {
+            var requestPayload = new { Email = email, Password = password };
+            var response = await Http.PostAsJsonAsync("Users/login", requestPayload);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var result = await response.Content.ReadFromJsonAsync<LoginResponse>();
+                if (result != null && !string.IsNullOrEmpty(result.token))
+                {
+                    AuthStateProvider.NotifyLogin(result.token, result.role, result.userName);
+                    // Give the auth state a moment to propagate before navigating
+                    await Task.Delay(100);
+                    NavigationManager.NavigateTo("/", forceLoad: false);
+                }
+                else
+                {
+                    errorMessage = "Invalid login payload returned by server.";
+                }
+            }
+            else
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                if (!string.IsNullOrEmpty(content) && content.Contains("message", StringComparison.OrdinalIgnoreCase))
+                {
+                    try
+                    {
+                        var parsedErr = JsonSerializer.Deserialize<ErrorResponse>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                        errorMessage = parsedErr?.Message ?? "Invalid email or password.";
+                    }
+                    catch
+                    {
+                        errorMessage = "Invalid credentials. Please try again.";
+                    }
+                }
+                else
+                {
+                    errorMessage = "Invalid credentials or unauthorized attempt.";
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Connection error: Could not reach authentication server. Details: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private class LoginResponse
+    {
+        public string token { get; set; } = string.Empty;
+        public string role { get; set; } = string.Empty;
+        public int userId { get; set; }           // backend returns int, not string
+        public string userName { get; set; } = string.Empty;
+    }
+
+    private class ErrorResponse
+    {
+        public string Message { get; set; } = string.Empty;
+    }
+}

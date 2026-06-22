@@ -1,0 +1,56 @@
+<div class="container-fluid mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold">Geography Management (Districts)</h2>
+    <button mat-raised-button color="primary" routerLink="/districts/new">
+      <mat-icon>add</mat-icon> Add New District
+    </button>
+  </div>
+
+  <mat-card class="shadow-sm">
+    <table mat-table [dataSource]="districts" class="w-100">
+      
+      <!-- ID Column -->
+      <ng-container matColumnDef="districtId">
+        <th mat-header-cell *matHeaderCellDef> ID </th>
+        <td mat-cell *matCellDef="let element"> {{element.districtId}} </td>
+      </ng-container>
+
+      <!-- Name Column -->
+      <ng-container matColumnDef="districtName">
+        <th mat-header-cell *matHeaderCellDef> District Name </th>
+        <td mat-cell *matCellDef="let element"> 
+          <span class="fw-bold">{{element.districtName}}</span>
+          <div class="text-muted small" *ngIf="element.locations?.length">
+            Locations: <span *ngFor="let loc of element.locations; let last=last">{{loc.locationName}}{{last ? '' : ', '}}</span>
+          </div>
+        </td>
+      </ng-container>
+
+      <!-- Division Column -->
+      <ng-container matColumnDef="divisionName">
+        <th mat-header-cell *matHeaderCellDef> Division </th>
+        <td mat-cell *matCellDef="let element"> {{element.divisionName}} </td>
+      </ng-container>
+
+      <!-- Actions Column -->
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef class="text-end"> Actions </th>
+        <td mat-cell *matCellDef="let element" class="text-end">
+          <button mat-icon-button color="primary" (click)="editDistrict(element.districtId)" title="Edit">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button mat-icon-button color="warn" (click)="deleteDistrict(element.districtId)" title="Delete">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+
+    <div *ngIf="districts.length === 0" class="p-4 text-center text-muted">
+      No districts found. Click "Add New District" to create one.
+    </div>
+  </mat-card>
+</div>

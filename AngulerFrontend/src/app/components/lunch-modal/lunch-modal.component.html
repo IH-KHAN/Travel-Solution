@@ -1,0 +1,31 @@
+<h2 mat-dialog-title>{{ data?.existingData ? 'Edit' : 'Add' }} Lunch</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="lunchForm" class="d-flex flex-column gap-3 mt-3">
+    
+    <mat-form-field appearance="outline">
+      <mat-label>Menu Item</mat-label>
+      <input matInput formControlName="menuItem" placeholder="e.g. Club Sandwich">
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Price</mat-label>
+      <input matInput type="number" formControlName="itemPrice" min="0">
+      <span matTextPrefix>$&nbsp;</span>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" style="width:100%;">
+      <mat-label>Lunch Time</mat-label>
+      <mat-select formControlName="lunchTime" panelClass="time-select-panel">
+        <mat-option *ngFor="let t of timeSlots" [value]="t">{{ t }}</mat-option>
+      </mat-select>
+      <mat-icon matSuffix>schedule</mat-icon>
+    </mat-form-field>
+
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Cancel</button>
+  <button mat-raised-button color="primary" [disabled]="!lunchForm.valid" (click)="onSave()">Save</button>
+</mat-dialog-actions>

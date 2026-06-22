@@ -1,0 +1,16 @@
+@inject NavigationManager NavigationManager
+
+@code {
+    protected override void OnInitialized()
+    {
+        // Only redirect if not already on the login page (prevents infinite loop)
+        var currentUri = NavigationManager.Uri;
+        var relativePath = NavigationManager.ToBaseRelativePath(currentUri);
+        
+        if (!relativePath.Equals("login", StringComparison.OrdinalIgnoreCase) &&
+            !relativePath.Equals("login/", StringComparison.OrdinalIgnoreCase))
+        {
+            NavigationManager.NavigateTo("/login");
+        }
+    }
+}

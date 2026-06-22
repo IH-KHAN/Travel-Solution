@@ -1,0 +1,71 @@
+<h2 mat-dialog-title class="d-flex align-items-center gap-2">
+  <mat-icon color="primary">person_pin</mat-icon>
+  Agent — {{ packageTitle }}
+</h2>
+
+<mat-dialog-content>
+
+  <!-- Current agent view -->
+  <ng-container *ngIf="currentAgentName && mode === 'view'">
+    <div class="d-flex align-items-center gap-3 p-3 rounded-3 mb-3 mt-2"
+         style="background:rgba(25,118,210,0.07); border: 1px solid rgba(25,118,210,0.2);">
+      <div class="rounded-circle d-flex align-items-center justify-content-center"
+           style="width:42px;height:42px;background:#1976d2;color:#fff;font-size:18px;flex-shrink:0;">
+        <mat-icon>person</mat-icon>
+      </div>
+      <div class="flex-grow-1">
+        <p class="fw-bold mb-0" style="color:#1976d2;">{{ currentAgentName }}</p>
+        <p class="text-muted mb-0" style="font-size:0.8rem;">Assigned Agent</p>
+      </div>
+      <mat-icon class="text-success">verified</mat-icon>
+    </div>
+
+    <div class="d-flex gap-2 mt-3">
+      <button mat-stroked-button color="warn" [disabled]="removing" (click)="onRemove()" class="flex-grow-1">
+        <mat-icon>person_remove</mat-icon>
+        {{ removing ? 'Removing...' : 'Remove Agent' }}
+      </button>
+      <button mat-stroked-button color="primary" (click)="mode = 'assign'" class="flex-grow-1">
+        <mat-icon>swap_horiz</mat-icon>
+        Change Agent
+      </button>
+    </div>
+  </ng-container>
+
+  <!-- Assign / change form -->
+  <ng-container *ngIf="mode === 'assign'">
+    <div *ngIf="currentAgentName" class="d-flex align-items-center gap-2 p-2 rounded mb-3 mt-2"
+         style="background:#fff3e0;border:1px solid #ffe0b2;">
+      <mat-icon style="color:#e65100;font-size:18px;width:18px;height:18px;">warning</mat-icon>
+      <small style="color:#e65100;">This will replace the current agent: <strong>{{ currentAgentName }}</strong></small>
+    </div>
+
+    <div class="d-flex flex-column gap-3 mt-2">
+      <mat-form-field appearance="outline" class="w-100">
+        <mat-label>Select New Agent</mat-label>
+        <mat-select [(ngModel)]="selectedAgentId">
+          <mat-option *ngFor="let agent of agents" [value]="agent.userId">
+            {{ agent.userName }} ({{ agent.email }})
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="w-100">
+        <mat-label>Agent Commission (৳)</mat-label>
+        <input matInput type="number" [(ngModel)]="commission" min="0" step="0.01">
+      </mat-form-field>
+    </div>
+  </ng-container>
+
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()">Cancel</button>
+  <button *ngIf="mode === 'assign'"
+          mat-raised-button color="primary"
+          [disabled]="!selectedAgentId || loading"
+          (click)="onSave()">
+    <mat-icon>{{ loading ? 'hourglass_empty' : 'check' }}</mat-icon>
+    {{ loading ? 'Saving...' : (currentAgentName ? 'Change Agent' : 'Assign Agent') }}
+  </button>
+</mat-dialog-actions>

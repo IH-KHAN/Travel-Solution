@@ -1,0 +1,219 @@
+@page "/"
+@inject NavigationManager NavigationManager
+
+<div class="container py-4">
+    <AuthorizeView>
+        <Authorized>
+            <!-- Authenticated Dashboard -->
+            <div class="ts-hero-dashboard">
+                <div class="row align-items-center">
+                    <div class="col-md-8 position-relative" style="z-index: 2;">
+                        <span class="badge bg-teal-translucent text-teal-accent mb-3 px-3 py-2 rounded-pill fw-semibold">
+                            <i class="bi bi-shield-check me-1"></i> Secure Session Verified
+                        </span>
+                        <h1 class="display-5 fw-bold mb-2">Welcome Back, @context.User.Identity?.Name!</h1>
+                        <p class="lead text-white-50 mb-0">
+                            Manage your travel bookings, generate beautiful high-end magazine pdfs, and inspect completed tour timelines from your mobile control panel.
+                        </p>
+                    </div>
+                    <div class="col-md-4 text-center d-none d-md-block position-relative" style="z-index: 2;">
+                        <i class="bi bi-check-circle-fill text-teal-accent" style="font-size: 7rem; opacity: 0.95; filter: drop-shadow(0 0 20px rgba(45,212,191,0.3));"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Overview Cards -->
+            <div class="row g-4 mb-4">
+                <div class="col-6 col-lg-3">
+                    <div class="card border-0 shadow-sm rounded-4 p-3 bg-white h-100 transition-all hover-translate-y">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <span class="text-muted small fw-bold text-uppercase">User Identity</span>
+                            <i class="bi bi-person text-primary fs-4"></i>
+                        </div>
+                        <h4 class="fw-bold mb-1">@context.User.Identity?.Name</h4>
+                        <span class="text-muted small">Active Account</span>
+                    </div>
+                </div>
+                <div class="col-6 col-lg-3">
+                    <div class="card border-0 shadow-sm rounded-4 p-3 bg-white h-100 transition-all hover-translate-y">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <span class="text-muted small fw-bold text-uppercase">Role Level</span>
+                            <i class="bi bi-shield-lock text-success fs-4"></i>
+                        </div>
+                        <h4 class="fw-bold mb-1 text-success">
+                            @(context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role || c.Type == "role" || c.Type == "http://schemas.microsoft.com/ws/2008/06/identity/claims/role")?.Value ?? "User")
+                        </h4>
+                        <span class="text-muted small">Role-Based Access</span>
+                    </div>
+                </div>
+                <div class="col-6 col-lg-3">
+                    <div class="card border-0 shadow-sm rounded-4 p-3 bg-white h-100 transition-all hover-translate-y">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <span class="text-muted small fw-bold text-uppercase">Tour Magazines</span>
+                            <i class="bi bi-journal-album text-info fs-4"></i>
+                        </div>
+                        <h4 class="fw-bold mb-1">QuestPDF</h4>
+                        <span class="text-muted small">Ready to Download</span>
+                    </div>
+                </div>
+                <div class="col-6 col-lg-3">
+                    <div class="card border-0 shadow-sm rounded-4 p-3 bg-white h-100 transition-all hover-translate-y">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <span class="text-muted small fw-bold text-uppercase">Host System</span>
+                            <i class="bi bi-laptop text-warning fs-4"></i>
+                        </div>
+                        <h4 class="fw-bold mb-1">MAUI Hybrid</h4>
+                        <span class="text-muted small">Fast & Native</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Action Cards Grid -->
+            <h3 class="fw-bold text-dark mb-3">Quick Navigation</h3>
+            <div class="ts-quick-actions">
+                @if (IsAdminOrAudit(context.User))
+                {
+                    <div class="ts-quick-card tour-metrics">
+                        <div class="ts-card-icon-wrapper">
+                            <i class="bi bi-check-circle-fill"></i>
+                        </div>
+                        <h5 class="fw-bold text-dark mb-2">Completed Tours</h5>
+                        <p class="text-muted small mb-4 flex-grow-1">
+                            Explore tour logs, verify activity records, and download high-quality magazine PDF reviews complete with custom coverage.
+                        </p>
+                        <a href="/completed-tours" class="btn btn-primary w-100 rounded-3 mt-auto fw-semibold">
+                            <i class="bi bi-arrow-right-circle me-1"></i> Go to Tours
+                        </a>
+                    </div>
+
+                    <div class="ts-quick-card admin-only">
+                        <div class="ts-card-icon-wrapper">
+                            <i class="bi bi-sliders"></i>
+                        </div>
+                        <h5 class="fw-bold text-dark mb-2">Admin Dashboard</h5>
+                        <p class="text-muted small mb-4 flex-grow-1">
+                            Set cover images, upload post-tour memories, insert activity summaries, and generate gorgeous custom print outs.
+                        </p>
+                        <a href="/completed-tours" class="btn btn-warning text-dark w-100 rounded-3 mt-auto fw-bold">
+                            <i class="bi bi-pencil-square me-1"></i> Manage Content
+                        </a>
+                    </div>
+                }
+                else
+                {
+                    <div class="ts-quick-card tour-metrics">
+                        <div class="ts-card-icon-wrapper">
+                            <i class="bi bi-journal-album"></i>
+                        </div>
+                        <h5 class="fw-bold text-dark mb-2">My Magazines</h5>
+                        <p class="text-muted small mb-4 flex-grow-1">
+                            Explore your past trips and download high-quality magazine PDF reviews complete with custom coverage.
+                        </p>
+                        <a href="/my-magazines" class="btn btn-primary w-100 rounded-3 mt-auto fw-semibold">
+                            <i class="bi bi-arrow-right-circle me-1"></i> Go to Magazines
+                        </a>
+                    </div>
+                }
+
+                <div class="ts-quick-card">
+                    <div class="ts-card-icon-wrapper text-teal">
+                        <i class="bi bi-compass"></i>
+                    </div>
+                    <h5 class="fw-bold text-dark mb-2">Explore Features</h5>
+                    <p class="text-muted small mb-4 flex-grow-1">
+                        Take full advantage of client-side role-based authentication rules, native storage caching, and cross-platform capabilities.
+                    </p>
+                    <button @onclick="NavigateToAbout" class="btn btn-outline-secondary w-100 rounded-3 mt-auto fw-semibold">
+                        <i class="bi bi-info-circle me-1"></i> App Summary
+                    </button>
+                </div>
+            </div>
+        </Authorized>
+
+        <NotAuthorized>
+            <!-- Anonymous Welcome Splash Screen -->
+            <div class="card border-0 shadow-lg rounded-5 overflow-hidden mb-4" style="background: radial-gradient(circle at 10% 20%, rgb(15, 23, 42) 0%, rgb(30, 41, 59) 90%); min-height: 480px; position: relative;">
+                <div class="position-absolute top-0 start-0 w-100 h-100" style="background: radial-gradient(circle, rgba(13, 148, 136, 0.1) 0%, transparent 60%); pointer-events: none;"></div>
+                
+                <div class="card-body d-flex flex-column justify-content-center p-5 text-white position-relative" style="z-index: 2;">
+                    <div class="row align-items-center">
+                        <div class="col-lg-7 text-center text-lg-start">
+                            <span class="badge bg-teal-translucent text-teal-accent mb-3 px-3 py-2 rounded-pill fw-semibold">
+                                <i class="bi bi-airplane-fill me-1"></i> Premium Mobile Companion
+                            </span>
+                            <h1 class="display-4 fw-bold mb-3" style="letter-spacing: -0.03em; line-height: 1.15;">
+                                Your Gateway to <span style="background: linear-gradient(135deg, #2dd4bf, #0d9488); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Premium Journeys</span>
+                            </h1>
+                            <p class="lead text-white-50 mb-4" style="max-width: 600px;">
+                                Sign in to browse your completed tour timelines, upload scenic photographs, insert post-tour activity memories, and download stunning magazine-styled PDFs.
+                            </p>
+                            <div class="d-flex flex-column flex-sm-row gap-3 justify-content-center justify-content-lg-start">
+                                <a href="/login" class="btn btn-premium-teal px-4 py-3 rounded-3 d-flex align-items-center justify-content-center">
+                                    <i class="bi bi-box-arrow-in-right fs-5 me-2"></i>
+                                    <span class="fw-bold">Sign In to Your Workspace</span>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-lg-5 text-center d-none d-lg-block">
+                            <div class="position-relative d-inline-block">
+                                <div class="position-absolute top-50 start-50 translate-middle w-100 h-100 bg-teal rounded-circle blur" style="opacity: 0.15; filter: blur(40px); width: 250px; height: 250px;"></div>
+                                <i class="bi bi-compass-fill text-teal-accent pulse-animation" style="font-size: 10rem; filter: drop-shadow(0 15px 30px rgba(0,0,0,0.3));"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Features Summary Grid -->
+            <div class="row g-4 my-2">
+                <div class="col-md-4">
+                    <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100 transition-all hover-translate-y">
+                        <div class="ts-card-icon-wrapper mb-3" style="width: 44px; height: 44px; border-radius: 10px; background-color: #f0fdfa; color: #0d9488;">
+                            <i class="bi bi-journal-richtext fs-4"></i>
+                        </div>
+                        <h5 class="fw-bold text-dark">Premium Magazines</h5>
+                        <p class="text-muted small mb-0">
+                            Beautiful layout with realistic covers, category labels, Gold spotlight details, and integrated barcodes generated via QuestPDF.
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100 transition-all hover-translate-y">
+                        <div class="ts-card-icon-wrapper mb-3" style="width: 44px; height: 44px; border-radius: 10px; background-color: #f0fdfa; color: #0d9488;">
+                            <i class="bi bi-shield-check fs-4"></i>
+                        </div>
+                        <h5 class="fw-bold text-dark">JWT Secure Access</h5>
+                        <p class="text-muted small mb-0">
+                            Fully compliant client-side Base64Url JWT processing and role authorization mapping without bulky external libraries.
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100 transition-all hover-translate-y">
+                        <div class="ts-card-icon-wrapper mb-3" style="width: 44px; height: 44px; border-radius: 10px; background-color: #f0fdfa; color: #0d9488;">
+                            <i class="bi bi-phone fs-4"></i>
+                        </div>
+                        <h5 class="fw-bold text-dark">Cross-Platform Hybrid</h5>
+                        <p class="text-muted small mb-0">
+                            High performance native UI execution on iOS, Android, and Windows powered by MAUI Blazor Hybrid integration.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </NotAuthorized>
+    </AuthorizeView>
+</div>
+
+@code {
+    private bool IsAdminOrAudit(ClaimsPrincipal user)
+    {
+        return user.Claims.Any(c => 
+            (c.Type == ClaimTypes.Role || c.Type == "role" || c.Type == "http://schemas.microsoft.com/ws/2008/06/identity/claims/role") && 
+            (string.Equals(c.Value, "Admin", StringComparison.OrdinalIgnoreCase) || string.Equals(c.Value, "Audit", StringComparison.OrdinalIgnoreCase)));
+    }
+
+    private void NavigateToAbout()
+    {
+        // Highlight system properties
+    }
+}

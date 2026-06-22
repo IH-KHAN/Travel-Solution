@@ -1,0 +1,129 @@
+<h2 mat-dialog-title>Manage Rooms</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="roomsForm">
+    <div formArrayName="rooms">
+      <div *ngFor="let room of rooms.controls; let i = index" [formGroupName]="i" class="room-group">
+        <div class="room-header">
+          <h3>Room {{i + 1}}</h3>
+          <button mat-icon-button color="warn" type="button" (click)="removeRoom(i)" *ngIf="rooms.length > 1">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Room Category Type</mat-label>
+            <mat-select formControlName="roomTypeId">
+              <mat-option *ngFor="let type of roomTypes" [value]="type.roomTypeId">
+                {{type.roomTypeName}}
+              </mat-option>
+            </mat-select>
+            <mat-error *ngIf="room.get('roomTypeId')?.hasError('required')">Type is required</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Price Per Night</mat-label>
+            <input matInput type="number" formControlName="pricePerNight" min="0">
+            <span matTextPrefix>$&nbsp;</span>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row align-center">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Max Guests</mat-label>
+            <input matInput type="number" formControlName="maxGuest" min="1">
+          </mat-form-field>
+
+          <div class="toggle-container">
+            <mat-slide-toggle formControlName="isAvailable" color="primary">
+              Category Active / Available
+            </mat-slide-toggle>
+          </div>
+        </div>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Description</mat-label>
+          <textarea matInput formControlName="description" rows="2"></textarea>
+        </mat-form-field>
+
+        <hr class="my-divider">
+
+        <!-- Detail: Room Units -->
+        <div class="units-container" formArrayName="roomUnits">
+          <div class="units-header">
+            <h4 class="units-title">Physical Rooms / Units ({{ getRoomUnits(i).length }})</h4>
+            <button mat-stroked-button color="primary" type="button" (click)="addRoomUnit(i)" class="small-btn">
+              <mat-icon>add</mat-icon> Add Unit
+            </button>
+          </div>
+
+          <div *ngFor="let unit of getRoomUnits(i).controls; let j = index" [formGroupName]="j" class="unit-group">
+            <div class="unit-index">#{{ j + 1 }}</div>
+            <mat-form-field appearance="outline" class="unit-field">
+              <mat-label>Room Number</mat-label>
+              <input matInput formControlName="roomNumber" placeholder="e.g. 101">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="unit-field">
+              <mat-label>Floor</mat-label>
+              <input matInput formControlName="floor" placeholder="e.g. 1st Floor">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="unit-field">
+              <mat-label>View</mat-label>
+              <input matInput formControlName="roomView" placeholder="e.g. Sea View">
+            </mat-form-field>
+
+            <mat-slide-toggle formControlName="isAvailable" color="primary" class="unit-toggle">
+              Avail
+            </mat-slide-toggle>
+
+            <button mat-icon-button color="warn" type="button" (click)="removeRoomUnit(i, j)" *ngIf="getRoomUnits(i).length > 1">
+              <mat-icon>close</mat-icon>
+            </button>
+          </div>
+        </div>
+
+        <hr class="my-divider">
+
+        <!-- Room Images Upload Section -->
+        <div class="image-upload-section">
+          <h4>Room Images ({{ room.get('room_Images')?.value.length }})</h4>
+          <input type="file" #fileInput multiple accept="image/*" (change)="onFileSelected($event, i)" style="display: none;">
+          <button mat-stroked-button color="accent" type="button" (click)="fileInput.click()">
+            <mat-icon>add_photo_alternate</mat-icon> Add Images
+          </button>
+
+          <div class="image-gallery" *ngIf="room.get('room_Images')?.value.length > 0">
+            <div class="image-item" *ngFor="let img of room.get('room_Images')?.value; let j = index" [class.is-primary]="img.isPrimaryImage">
+              <!-- Prefix backend URL -->
+              <img [src]="'http://localhost:5246' + img.imageUrl" alt="Room Image">
+              
+              <div class="image-overlay">
+                <button mat-icon-button class="star-btn" [color]="img.isPrimaryImage ? 'accent' : ''" (click)="setPrimaryImage(i, j)" title="Set as Primary">
+                  <mat-icon>{{ img.isPrimaryImage ? 'star' : 'star_border' }}</mat-icon>
+                </button>
+                <button mat-icon-button color="warn" class="delete-btn" (click)="removeRoomImage(i, j)">
+                  <mat-icon>close</mat-icon>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </form>
+
+  <div class="add-btn-container">
+    <button mat-stroked-button color="primary" type="button" (click)="addRoom()">
+      <mat-icon>add</mat-icon> Add Another Room
+    </button>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()">Cancel</button>
+  <button mat-raised-button color="primary" (click)="onSave()" [disabled]="!roomsForm.valid">Save</button>
+</mat-dialog-actions>

@@ -1,0 +1,117 @@
+<div class="container py-4">
+  <div class="d-flex align-items-center mb-4 gap-3">
+    <button mat-icon-button color="primary" (click)="cancel()">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <h2 class="fw-bold mb-0 text-primary">Tour Booking Details</h2>
+  </div>
+
+  <mat-card class="shadow-sm border-0 rounded-4 mb-4" *ngIf="bookingDetails">
+    <mat-card-header class="bg-light py-3 border-bottom">
+      <mat-card-title class="fs-5 mb-0">Booking #{{bookingDetails.bookingId}}</mat-card-title>
+      <mat-card-subtitle class="mt-1">Placed on {{bookingDetails.createdAt | date:'mediumDate'}}</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content class="p-4">
+      <div class="row g-4">
+        <div class="col-md-6">
+          <h5 class="text-muted fw-bold mb-3">Client Information</h5>
+          <p class="mb-1"><strong>Name:</strong> {{bookingDetails.clientName || 'N/A'}}</p>
+          <p class="mb-0"><strong>Email:</strong> {{bookingDetails.clientEmail || 'N/A'}}</p>
+        </div>
+        <div class="col-md-6">
+          <h5 class="text-muted fw-bold mb-3">Package Information</h5>
+          <p class="mb-1"><strong>Package:</strong> {{bookingDetails.packageTitle || 'N/A'}}</p>
+          <p class="mb-1"><strong>Code:</strong> {{bookingDetails.packageCode || 'N/A'}}</p>
+          <p class="mb-0">
+            <strong>Vacancy:</strong> 
+            <span class="badge" [ngClass]="bookingDetails.availableVacancy > 0 ? 'bg-info' : 'bg-danger'">
+              {{bookingDetails.availableVacancy}} / {{bookingDetails.maxTourist}}
+            </span>
+          </p>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card class="shadow-sm border-0 rounded-4 mb-4" *ngIf="bookingDetails?.travellers && bookingDetails.travellers.length > 0">
+    <mat-card-header class="bg-light py-3 border-bottom">
+      <mat-card-title class="fs-5 mb-0 d-flex align-items-center">
+        <mat-icon class="me-2 text-primary">groups</mat-icon> Travelers Details
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-content class="p-0">
+      <div class="table-responsive">
+        <table class="table table-hover mb-0 align-middle">
+          <thead class="table-light text-muted">
+            <tr>
+              <th class="py-3 px-4">Name</th>
+              <th class="py-3">Email</th>
+              <th class="py-3">Phone</th>
+              <th class="py-3">Age</th>
+              <th class="py-3 px-4 text-center">Gender</th>
+            </tr>
+          </thead>
+          <tbody class="border-top-0">
+            <tr *ngFor="let traveler of bookingDetails.travellers">
+              <td class="px-4 py-3 fw-medium">{{traveler.travellerName}}</td>
+              <td class="py-3 text-muted">{{traveler.email || '-'}}</td>
+              <td class="py-3 text-muted">{{traveler.phone || '-'}}</td>
+              <td class="py-3 text-muted">{{traveler.age}}</td>
+              <td class="px-4 py-3 text-center text-muted text-capitalize">
+                {{traveler.gender}}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card class="shadow-sm border-0 rounded-4" *ngIf="!isViewOnly">
+    <mat-card-content class="p-4">
+      <form [formGroup]="bookingForm" (ngSubmit)="onSubmit()">
+        <h5 class="text-muted fw-bold mb-4">Update Status</h5>
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>Booking Status</mat-label>
+              <mat-select formControlName="status">
+                <mat-option *ngFor="let option of statusOptions" [value]="option">
+                  {{option}}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+          <div class="col-md-6 mb-3">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>Payment Status</mat-label>
+              <mat-select formControlName="paymentStatus">
+                <mat-option *ngFor="let option of paymentStatusOptions" [value]="option">
+                  {{option}}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>Total Amount (৳)</mat-label>
+              <input matInput type="number" formControlName="amount">
+            </mat-form-field>
+          </div>
+        </div>
+
+        <mat-divider class="my-3"></mat-divider>
+
+        <div class="d-flex justify-content-end gap-2 mt-4">
+          <button mat-stroked-button type="button" (click)="cancel()">Cancel</button>
+          <button mat-flat-button color="primary" type="submit" [disabled]="bookingForm.invalid">
+            Save Changes
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

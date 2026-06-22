@@ -1,0 +1,41 @@
+<div class="container mt-4 mb-5" style="max-width: 600px;">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold">{{ isEditMode ? 'Edit District' : 'Add New District' }}</h2>
+    <button mat-button color="warn" (click)="cancel()">
+      <mat-icon>arrow_back</mat-icon> Back
+    </button>
+  </div>
+
+  <mat-card class="shadow-sm">
+    <mat-card-content class="pt-4">
+      <form [formGroup]="districtForm" (ngSubmit)="onSubmit()">
+        <div class="mb-3">
+          <mat-form-field appearance="outline" class="w-100">
+            <mat-label>District Name</mat-label>
+            <input matInput formControlName="districtName" placeholder="Enter district name">
+            <mat-error *ngIf="districtForm.get('districtName')?.hasError('required')">Name is required</mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="mb-3">
+          <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Division</mat-label>
+            <mat-select formControlName="divisionId">
+              <mat-option *ngFor="let div of divisions" [value]="div.divisionId">
+                {{div.divisionName}}
+              </mat-option>
+            </mat-select>
+            <mat-error *ngIf="districtForm.get('divisionId')?.hasError('required')">Division is required</mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+          <button type="button" mat-stroked-button (click)="cancel()">Cancel</button>
+          <button type="submit" mat-raised-button color="primary" [disabled]="districtForm.invalid">
+            <mat-icon>save</mat-icon> {{ isEditMode ? 'Update' : 'Save' }}
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

@@ -1,0 +1,184 @@
+<h2 mat-dialog-title class="fw-bold text-primary border-bottom pb-3 mb-0">
+  <mat-icon class="align-middle">local_activity</mat-icon> Manage Activities
+</h2>
+
+<mat-dialog-content class="pt-4 pb-2" style="max-height: 70vh;">
+  <form [formGroup]="activitiesForm">
+    <div formArrayName="activities">
+      <div *ngFor="let activity of activities.controls; let i=index" [formGroupName]="i" class="row align-items-start mb-4 p-3 bg-light rounded mx-0 border shadow-sm">
+        
+        <div class="col-12 d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
+          <span class="fw-bold text-secondary">Activity #{{i + 1}}</span>
+          <button type="button" mat-icon-button color="warn" (click)="removeActivity(i)" title="Remove Activity">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+
+        <div class="col-md-6 mb-2">
+          <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Activity Name</mat-label>
+            <input matInput formControlName="activityName" placeholder="e.g. Flight to Paris">
+            <mat-error *ngIf="activity.get('activityName')?.hasError('required')">Name is required</mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="col-md-6 mb-2">
+          <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Activity Type</mat-label>
+            <mat-select formControlName="activityType">
+              <mat-option *ngFor="let type of activityTypes" [value]="type">{{type}}</mat-option>
+            </mat-select>
+            <mat-error *ngIf="activity.get('activityType')?.hasError('required')">Type is required</mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="col-md-4 mb-2">
+          <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Planned Date</mat-label>
+            <input matInput [matDatepicker]="plannedPicker" formControlName="plannedDate">
+            <mat-datepicker-toggle matIconSuffix [for]="plannedPicker"></mat-datepicker-toggle>
+            <mat-datepicker #plannedPicker></mat-datepicker>
+            <mat-error *ngIf="activity.get('plannedDate')?.hasError('required')">Date is required</mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="col-md-3 mb-2">
+          <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Planned Time</mat-label>
+            <mat-select formControlName="plannedHour" panelClass="time-select-panel">
+              <mat-option *ngFor="let t of timeSlots" [value]="t">{{ t }}</mat-option>
+            </mat-select>
+            <mat-icon matSuffix>schedule</mat-icon>
+          </mat-form-field>
+        </div>
+
+        <div class="col-md-6 mb-2">
+          <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Projected Cost</mat-label>
+            <input matInput type="number" formControlName="projectedCost" placeholder="0.00" min="0">
+            <mat-icon matSuffix>attach_money</mat-icon>
+          </mat-form-field>
+        </div>
+
+        <!-- Conditional Fields block depending on activityType -->
+        <ng-container *ngIf="activity.get('activityType')?.value === 'Hotel'">
+          <div class="col-md-12 mb-2">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>Select Hotel</mat-label>
+              <mat-select formControlName="hotelId">
+                <mat-option *ngFor="let h of hotels" [value]="h.hotelId">{{h.hotelName}}</mat-option>
+              </mat-select>
+              <mat-error *ngIf="activity.get('hotelId')?.hasError('required')">Hotel is required</mat-error>
+            </mat-form-field>
+          </div>
+        </ng-container>
+
+        <ng-container *ngIf="activity.get('activityType')?.value === 'Transport'">
+          <div class="col-md-6 mb-2">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>Transportation Type</mat-label>
+              <mat-select formControlName="transportationType">
+                <mat-option *ngFor="let t of transportationTypes" [value]="t">{{t}}</mat-option>
+              </mat-select>
+              <mat-error *ngIf="activity.get('transportationType')?.hasError('required')">Transportation type is required</mat-error>
+            </mat-form-field>
+          </div>
+          <div class="col-md-6 mb-2">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>Remarks</mat-label>
+              <input matInput formControlName="remarks" placeholder="Optional remarks">
+            </mat-form-field>
+          </div>
+        </ng-container>
+
+        <ng-container *ngIf="activity.get('activityType')?.value === 'Meal'">
+          <div class="col-md-6 mb-2">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>Select Restaurant</mat-label>
+              <mat-select formControlName="restaurantId">
+                <mat-option *ngFor="let r of restaurants" [value]="r.restaurantId">{{r.restaurantName}}</mat-option>
+              </mat-select>
+              <mat-error *ngIf="activity.get('restaurantId')?.hasError('required')">Restaurant is required</mat-error>
+            </mat-form-field>
+          </div>
+          <div class="col-md-6 mb-2" *ngIf="activity.get('restaurantId')?.value">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>Select Menu</mat-label>
+              <mat-select formControlName="menuId">
+                <mat-option *ngFor="let m of getMenusForRestaurant(activity.get('restaurantId')?.value)" [value]="m.menuId">
+                  {{m.menuItem}} ({{m.type}}) - {{m.itemPrice | currency}}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </ng-container>
+
+        <ng-container *ngIf="activity.get('activityType')?.value === 'SpotVisit'">
+          <div class="col-md-12 mb-2">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>Select Tour Spot</mat-label>
+              <mat-select formControlName="tourSpotId">
+                <mat-option *ngFor="let ts of tourSpots" [value]="ts.spotId || ts.tourSpotId">
+                  {{ts.spotName || ts.tourSpotName}}
+                </mat-option>
+              </mat-select>
+              <mat-hint *ngIf="tourSpots.length === 0" style="color:#e65100;">
+                No spots found for the selected location's division.
+              </mat-hint>
+              <mat-error *ngIf="activity.get('tourSpotId')?.hasError('required')">Tour spot is required</mat-error>
+            </mat-form-field>
+          </div>
+        </ng-container>
+
+        <ng-container *ngIf="activity.get('activityType')?.value === 'MidwayBreak'">
+          <div class="col-md-12 mb-2">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>Remarks / Location</mat-label>
+              <input matInput formControlName="remarks" placeholder="Where is the break?">
+            </mat-form-field>
+          </div>
+        </ng-container>
+
+        <ng-container *ngIf="activity.get('activityType')?.value === 'Other'">
+          <div class="col-md-6 mb-2">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>Remarks</mat-label>
+              <input matInput formControlName="remarks" placeholder="Explanation for other activity">
+            </mat-form-field>
+          </div>
+          <div class="col-md-6 mb-2">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>Miscellaneous Cost</mat-label>
+              <input matInput type="number" formControlName="miscellaneousCost" placeholder="0.00">
+              <mat-icon matSuffix>attach_money</mat-icon>
+            </mat-form-field>
+          </div>
+        </ng-container>
+
+        <div class="col-md-12">
+          <mat-form-field appearance="outline" class="w-100 mb-0">
+            <mat-label>Description (Optional)</mat-label>
+            <textarea matInput formControlName="activityDescription" rows="2" placeholder="Extra details..."></textarea>
+          </mat-form-field>
+        </div>
+      </div>
+    </div>
+    
+    <div *ngIf="activities.length === 0" class="text-muted fst-italic mb-3 text-center p-4 bg-light border rounded">
+      No activities added yet. Click "Add Activity" to create one.
+    </div>
+
+    <div class="d-flex justify-content-center mt-3 mb-2">
+      <button type="button" mat-stroked-button color="primary" (click)="addActivity()">
+        <mat-icon>add</mat-icon> Add Another Activity
+      </button>
+    </div>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="border-top pt-3 pb-3 pe-4">
+  <button mat-button (click)="onCancel()">Cancel</button>
+  <button mat-raised-button color="primary" [disabled]="activitiesForm.invalid" (click)="onSave()">
+    <mat-icon>check</mat-icon> Save Activities
+  </button>
+</mat-dialog-actions>

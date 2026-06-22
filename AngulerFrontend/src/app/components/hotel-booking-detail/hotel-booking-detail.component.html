@@ -1,0 +1,175 @@
+<div class="container py-4">
+  <div class="d-flex align-items-center mb-4 gap-3">
+    <button mat-icon-button color="primary" (click)="cancel()">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <h2 class="fw-bold mb-0 text-primary">Hotel Booking Details</h2>
+  </div>
+
+  <mat-card class="shadow-sm border-0 rounded-4 mb-4" *ngIf="bookingDetails">
+    <mat-card-header class="bg-light py-3 border-bottom d-flex justify-content-between align-items-center">
+      <div>
+        <mat-card-title class="fs-5 mb-0">Booking #{{bookingDetails.hotelBookingID}}</mat-card-title>
+        <mat-card-subtitle class="mt-1">Booked on {{bookingDetails.createdAt ? (bookingDetails.createdAt | date:'mediumDate') : 'N/A'}}</mat-card-subtitle>
+      </div>
+      <span class="badge fs-6 px-3 py-2 uppercase" [ngClass]="{
+        'bg-success': bookingDetails.bookingStatus === 'Confirmed' || bookingDetails.bookingStatus === 'Completed',
+        'bg-danger': bookingDetails.bookingStatus === 'Cancelled',
+        'bg-secondary': !bookingDetails.bookingStatus || bookingDetails.bookingStatus === 'Pending'
+      }">
+        {{bookingDetails.bookingStatus || 'Pending'}}
+      </span>
+    </mat-card-header>
+    <mat-card-content class="p-4">
+      <div class="row g-4">
+        <div class="col-md-4">
+          <h5 class="text-muted fw-bold mb-3">Client Information</h5>
+          <p class="mb-1"><strong>Name:</strong> {{bookingDetails.clientName || 'N/A'}}</p>
+          <p class="mb-1"><strong>Email:</strong> {{bookingDetails.clientEmail || 'N/A'}}</p>
+          <p class="mb-0"><strong>Client ID:</strong> {{bookingDetails.clientID}}</p>
+        </div>
+        <div class="col-md-4">
+          <h5 class="text-muted fw-bold mb-3">Hotel Information</h5>
+          <p class="mb-1"><strong>Hotel:</strong> {{bookingDetails.hotelName || 'N/A'}}</p>
+          <p class="mb-0">
+            <strong>Payment Status:</strong> 
+            <span class="badge" [ngClass]="{'bg-success': bookingDetails.paymentStatus?.toLowerCase() === 'paid', 'bg-warning text-dark': bookingDetails.paymentStatus?.toLowerCase() !== 'paid'}">
+              {{bookingDetails.paymentStatus || 'Unpaid'}}
+            </span>
+          </p>
+        </div>
+        <div class="col-md-4">
+          <h5 class="text-muted fw-bold mb-3">Stay Schedule</h5>
+          <p class="mb-1"><strong>Check-In:</strong> {{bookingDetails.checkInDate ? (bookingDetails.checkInDate | date:'mediumDate') : 'N/A'}}</p>
+          <p class="mb-0"><strong>Check-Out:</strong> {{bookingDetails.checkOutDate ? (bookingDetails.checkOutDate | date:'mediumDate') : 'N/A'}}</p>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card class="shadow-sm border-0 rounded-4 mb-4" *ngIf="isViewOnly && bookingDetails?.rooms && bookingDetails.rooms.length > 0">
+    <mat-card-header class="bg-light py-3 border-bottom">
+      <mat-card-title class="fs-5 mb-0 d-flex align-items-center">
+        <mat-icon class="me-2 text-primary">meeting_room</mat-icon> Booked Rooms Details
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-content class="p-0">
+      <div class="table-responsive">
+        <table class="table table-hover mb-0 align-middle">
+          <thead class="table-light text-muted">
+            <tr>
+              <th class="py-3 px-4">Room Type</th>
+              <th class="py-3">Room #</th>
+              <th class="py-3">Floor</th>
+              <th class="py-3">Quantity</th>
+              <th class="py-3">Unit Price</th>
+              <th class="py-3">Total</th>
+            </tr>
+          </thead>
+          <tbody class="border-top-0">
+            <tr *ngFor="let room of bookingDetails.rooms">
+              <td class="px-4 py-3 fw-medium">{{room.roomTypeName || 'Standard Room'}}</td>
+              <td class="py-3 text-muted"><span class="badge bg-light text-dark border">{{room.roomNumber || 'Any'}}</span></td>
+              <td class="py-3 text-muted">{{room.floor || '-'}}</td>
+              <td class="py-3 text-muted">{{room.quantity}}</td>
+              <td class="py-3 text-muted">৳{{room.unitPrice | number:'1.2-2'}}</td>
+              <td class="py-3 fw-bold text-success">৳{{(room.quantity * room.unitPrice) | number:'1.2-2'}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="p-4 bg-light text-end border-top">
+        <h4 class="fw-bold text-success mb-0">Total Fare: ৳{{ bookingDetails.fareTotal | number:'1.2-2' }}</h4>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card class="shadow-sm border-0 rounded-4" *ngIf="!isViewOnly">
+    <mat-card-content class="p-4">
+      <form [formGroup]="bookingForm" (ngSubmit)="onSubmit()">
+        <h5 class="text-muted fw-bold mb-4">Update Status</h5>
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>Booking Status</mat-label>
+              <mat-select formControlName="bookingStatus">
+                <mat-option *ngFor="let option of statusOptions" [value]="option">
+                  {{option}}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+          <div class="col-md-3 mb-3">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>Check In</mat-label>
+              <input matInput type="date" formControlName="checkInDate">
+            </mat-form-field>
+          </div>
+          <div class="col-md-3 mb-3">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>Check Out</mat-label>
+              <input matInput type="date" formControlName="checkOutDate">
+            </mat-form-field>
+          </div>
+        </div>
+
+        <mat-divider class="my-4"></mat-divider>
+        
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="text-muted fw-bold mb-0">Rooms</h5>
+          <button mat-stroked-button color="primary" type="button" (click)="addRoom()">
+            <mat-icon>add</mat-icon> Add Room
+          </button>
+        </div>
+
+        <div formArrayName="rooms">
+          <div *ngFor="let roomCtrl of rooms.controls; let i=index" [formGroupName]="i" class="row align-items-center mb-2">
+            <div class="col-md-5">
+              <mat-form-field appearance="outline" class="w-100 mb-0">
+                <mat-label>Room</mat-label>
+                <mat-select formControlName="roomId">
+                  <mat-option *ngFor="let r of availableRooms" [value]="r.roomId">
+                    {{r.roomTypeName}} - View: {{r.roomView}} (Max: {{r.maxGuest}})
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+            <div class="col-md-3">
+              <mat-form-field appearance="outline" class="w-100 mb-0">
+                <mat-label>Quantity</mat-label>
+                <input matInput type="number" formControlName="quantity" min="1">
+              </mat-form-field>
+            </div>
+            <div class="col-md-3">
+              <mat-form-field appearance="outline" class="w-100 mb-0">
+                <mat-label>Unit Price</mat-label>
+                <input matInput type="number" formControlName="unitPrice" min="0">
+              </mat-form-field>
+            </div>
+            <div class="col-md-1 text-end">
+              <button mat-icon-button color="warn" type="button" (click)="removeRoom(i)">
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+          </div>
+          <div *ngIf="rooms.length === 0" class="text-muted fst-italic mb-3">
+            No rooms added.
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-end mb-4">
+          <h4 class="fw-bold text-success mb-0">Total: ${{ bookingForm.get('fareTotal')?.value | number:'1.2-2' }}</h4>
+        </div>
+
+        <mat-divider class="my-3"></mat-divider>
+
+        <div class="d-flex justify-content-end gap-2 mt-4">
+          <button mat-stroked-button type="button" (click)="cancel()">Cancel</button>
+          <button mat-flat-button color="primary" type="submit" [disabled]="bookingForm.invalid">
+            Save Changes
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

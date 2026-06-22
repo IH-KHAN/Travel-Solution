@@ -1,0 +1,157 @@
+<nav class="navbar navbar-expand-lg navbar-dark premium-navbar shadow-sm">
+  <div class="container-fluid px-3 px-lg-4">
+    <a class="navbar-brand d-flex align-items-center gap-2 me-lg-4" routerLink="/dashboard" (click)="closeMenu()">
+      <div class="brand-icon-box bg-white bg-opacity-25 rounded-circle d-flex align-items-center justify-content-center" style="width:38px;height:38px;">
+        <mat-icon style="color: #fff;">flight_takeoff</mat-icon>
+      </div>
+      <span class="fw-bold brand-text fs-5">Travel Solution Admin</span>
+    </a>
+    <button class="navbar-toggler border-0 p-2 shadow-none text-white" type="button" (click)="isCollapsed = !isCollapsed" [attr.aria-expanded]="!isCollapsed" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" [class.show]="!isCollapsed" id="navbarNav">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0 gap-1 gap-lg-2" *ngIf="isLoggedIn">
+        <li class="nav-item" *ngIf="userRole === 'Admin' || userRole === 'Audit'">
+          <a class="nav-link px-3 py-2 rounded-pill d-flex align-items-center gap-1 text-white opacity-75 hover-opacity-100 transition" routerLink="/dashboard" routerLinkActive="active-pill opacity-100" [routerLinkActiveOptions]="{exact: true}" (click)="closeMenu()">
+            <mat-icon class="nav-icon small">dashboard</mat-icon>
+            <span>Dashboard</span>
+          </a>
+        </li>
+        
+        <!-- Tours Menu -->
+        <li class="nav-item dropdown position-relative" *ngIf="userRole === 'Admin' || userRole === 'Audit'">
+          <a class="nav-link dropdown-toggle px-3 py-2 rounded-pill d-flex align-items-center gap-1 text-white opacity-75 hover-opacity-100 transition" style="cursor:pointer" [class.active-pill]="activeMenu === 'tours'" [class.opacity-100]="activeMenu === 'tours'" (click)="toggleMenu('tours', $event)">
+            <mat-icon class="nav-icon small">explore</mat-icon>
+            <span>Tours & Packages</span>
+          </a>
+          <ul class="dropdown-menu premium-dropdown border-0 shadow-lg mt-2" [class.show]="activeMenu === 'tours'">
+            <li>
+              <a class="dropdown-item py-2 px-3 d-flex align-items-center gap-2 fw-medium" routerLink="/tourspots" (click)="closeMenu()">
+                <mat-icon style="color:#8e44ad; font-size:20px; width:20px; height:20px;">place</mat-icon> Tour Spots
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item py-2 px-3 d-flex align-items-center gap-2 fw-medium" routerLink="/packages" (click)="closeMenu()">
+                <mat-icon class="text-primary" style="font-size:20px; width:20px; height:20px;">tour</mat-icon> Tour Packages
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item py-2 px-3 d-flex align-items-center gap-2 fw-medium" routerLink="/tour-bookings" (click)="closeMenu()">
+                <mat-icon class="text-success" style="font-size:20px; width:20px; height:20px;">book_online</mat-icon> Tour Bookings
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item py-2 px-3 d-flex align-items-center gap-2 fw-medium" routerLink="/custom-tours" (click)="closeMenu()">
+                <mat-icon class="text-warning" style="font-size:20px; width:20px; height:20px;">alt_route</mat-icon> Custom Tours
+              </a>
+            </li>
+            <li><hr class="dropdown-divider my-1"></li>
+            <li>
+              <a class="dropdown-item py-2 px-3 d-flex align-items-center gap-2 fw-medium" routerLink="/packages" (click)="closeMenu()">
+                <mat-icon class="text-info" style="font-size:20px; width:20px; height:20px;">share_location</mat-icon> Live Tracking
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item py-2 px-3 d-flex align-items-center gap-2 fw-medium" routerLink="/packages/completed" (click)="closeMenu()">
+                <mat-icon style="color:#00695c; font-size:20px; width:20px; height:20px;">task_alt</mat-icon> Completed Tours
+              </a>
+            </li>
+          </ul>
+        </li>
+
+        <!-- Hospitality Menu -->
+        <li class="nav-item dropdown position-relative" *ngIf="userRole === 'Admin' || userRole === 'Audit'">
+          <a class="nav-link dropdown-toggle px-3 py-2 rounded-pill d-flex align-items-center gap-1 text-white opacity-75 hover-opacity-100 transition" style="cursor:pointer" [class.active-pill]="activeMenu === 'hospitality'" [class.opacity-100]="activeMenu === 'hospitality'" (click)="toggleMenu('hospitality', $event)">
+            <mat-icon class="nav-icon small">hotel</mat-icon>
+            <span>Hospitality</span>
+          </a>
+          <ul class="dropdown-menu premium-dropdown border-0 shadow-lg mt-2" [class.show]="activeMenu === 'hospitality'">
+            <li>
+              <a class="dropdown-item py-2 px-3 d-flex align-items-center gap-2 fw-medium" routerLink="/hotels" (click)="closeMenu()">
+                <mat-icon class="text-warning" style="font-size:20px; width:20px; height:20px;">king_bed</mat-icon> Hotels
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item py-2 px-3 d-flex align-items-center gap-2 fw-medium" routerLink="/hotel-bookings" (click)="closeMenu()">
+                <mat-icon class="text-info" style="font-size:20px; width:20px; height:20px;">meeting_room</mat-icon> Hotel Bookings
+              </a>
+            </li>
+            <li><hr class="dropdown-divider my-1"></li>
+            <li>
+              <a class="dropdown-item py-2 px-3 d-flex align-items-center gap-2 fw-medium" routerLink="/restaurants" (click)="closeMenu()">
+                <mat-icon class="text-danger" style="font-size:20px; width:20px; height:20px;">restaurant</mat-icon> Restaurants
+              </a>
+            </li>
+          </ul>
+        </li>
+
+        <!-- Administration Menu -->
+        <li class="nav-item dropdown position-relative" *ngIf="userRole === 'Admin' || userRole === 'Audit'">
+          <a class="nav-link dropdown-toggle px-3 py-2 rounded-pill d-flex align-items-center gap-1 text-white opacity-75 hover-opacity-100 transition" style="cursor:pointer" [class.active-pill]="activeMenu === 'admin'" [class.opacity-100]="activeMenu === 'admin'" (click)="toggleMenu('admin', $event)">
+            <mat-icon class="nav-icon small">admin_panel_settings</mat-icon>
+            <span>Admin & Finance</span>
+          </a>
+          <ul class="dropdown-menu premium-dropdown border-0 shadow-lg mt-2" [class.show]="activeMenu === 'admin'">
+            <li>
+              <a class="dropdown-item py-2 px-3 d-flex align-items-center gap-2 fw-medium" routerLink="/user-management" (click)="closeMenu()">
+                <mat-icon style="color:#283593; font-size:20px; width:20px; height:20px;">manage_accounts</mat-icon> User Management
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item py-2 px-3 d-flex align-items-center gap-2 fw-medium" routerLink="/refunds" (click)="closeMenu()">
+                <mat-icon class="text-danger" style="font-size:20px; width:20px; height:20px;">currency_exchange</mat-icon> Refund Requests
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item py-2 px-3 d-flex align-items-center gap-2 fw-medium" routerLink="/reviews" (click)="closeMenu()">
+                <mat-icon class="text-warning" style="font-size:20px; width:20px; height:20px;">star</mat-icon> Reviews & Ratings
+              </a>
+            </li>
+            <li *ngIf="userRole === 'Audit'">
+              <a class="dropdown-item py-2 px-3 d-flex align-items-center gap-2 fw-medium" routerLink="/admin/audit-logs" (click)="closeMenu()">
+                <mat-icon style="color:#607d8b; font-size:20px; width:20px; height:20px;">history</mat-icon> Audit Logs
+              </a>
+            </li>
+          </ul>
+        </li>
+
+        <!-- Agent Link -->
+        <li class="nav-item" *ngIf="userRole === 'Agent'">
+          <a class="nav-link px-3 py-2 rounded-pill d-flex align-items-center gap-1 text-white opacity-75 hover-opacity-100 transition" routerLink="/agent/dashboard" routerLinkActive="active-pill opacity-100" (click)="closeMenu()">
+            <mat-icon class="nav-icon small">support_agent</mat-icon>
+            <span>Agent Dashboard</span>
+          </a>
+        </li>
+
+        <!-- Client Link -->
+        <li class="nav-item" *ngIf="userRole !== 'Admin' && userRole !== 'Audit' && userRole !== 'Agent'">
+          <a class="nav-link px-3 py-2 rounded-pill d-flex align-items-center gap-1 text-white opacity-75 hover-opacity-100 transition" routerLink="/my-magazines" routerLinkActive="active-pill opacity-100" (click)="closeMenu()">
+            <mat-icon class="nav-icon small">auto_stories</mat-icon>
+            <span>My Magazines</span>
+          </a>
+        </li>
+      </ul>
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0" *ngIf="!isLoggedIn"></ul>
+      <div class="d-flex align-items-center gap-3 mt-3 mt-lg-0 py-3 py-lg-0 border-top border-top-lg-0 border-light border-opacity-10">
+        <ng-container *ngIf="isLoggedIn">
+          <div class="user-badge d-flex align-items-center gap-2 px-3 py-1 rounded-pill bg-white bg-opacity-10 border border-white border-opacity-25 shadow-sm">
+            <div class="avatar-circle bg-warning text-dark fw-bold d-flex align-items-center justify-content-center rounded-circle shadow-sm" style="width:32px;height:32px;font-size:0.95rem;">
+              {{ userName ? userName.charAt(0).toUpperCase() : 'A' }}
+            </div>
+            <div class="d-flex flex-column align-items-start pe-1">
+              <span class="text-white fw-bold small mb-0" style="line-height:1.1">{{ userName }}</span>
+              <span class="text-white-50" style="font-size:0.68rem;line-height:1.1">{{ userRole }}</span>
+            </div>
+          </div>
+          <button mat-raised-button class="logout-btn px-4 py-1 rounded-pill shadow-sm d-flex align-items-center gap-1 border-0 fw-semibold" style="background:#e53935;color:white;" (click)="logout(); closeMenu()">
+            <mat-icon style="font-size:18px; width:18px; height:18px; color:white;">logout</mat-icon> Logout
+          </button>
+        </ng-container>
+        <ng-container *ngIf="!isLoggedIn">
+          <button mat-button class="text-white px-4 py-1 rounded-pill" routerLink="/login" (click)="closeMenu()">Login</button>
+          <button mat-raised-button color="accent" class="px-4 py-1 rounded-pill shadow-sm" routerLink="/signup" (click)="closeMenu()">Sign Up</button>
+        </ng-container>
+      </div>
+    </div>
+  </div>
+</nav>

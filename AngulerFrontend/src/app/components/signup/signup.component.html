@@ -1,0 +1,67 @@
+<div class="signup-container">
+  <mat-card class="glass-card">
+    <mat-card-header>
+      <mat-card-title>Create an Account</mat-card-title>
+      <mat-card-subtitle>Sign up to get started</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <!-- Registration error alert -->
+      <div *ngIf="errorMessage" class="alert alert-danger d-flex align-items-center gap-2 mb-3 mt-2" role="alert">
+        <mat-icon style="font-size:18px;width:18px;height:18px;">error_outline</mat-icon>
+        <span>{{ errorMessage }}</span>
+      </div>
+
+      <form [formGroup]="signupForm" (ngSubmit)="onSubmit()" class="signup-form">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>User Name</mat-label>
+          <input matInput formControlName="userName" placeholder="Enter your full name">
+          <mat-icon matPrefix>person</mat-icon>
+          <mat-error *ngIf="signupForm.get('userName')?.hasError('required')">
+            User Name is required
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Email</mat-label>
+          <input matInput formControlName="email" type="email" placeholder="Enter your email">
+          <mat-icon matPrefix>email</mat-icon>
+          <mat-error *ngIf="signupForm.get('email')?.hasError('required')">
+            Email is required
+          </mat-error>
+          <mat-error *ngIf="signupForm.get('email')?.hasError('email')">
+            Please enter a valid email address
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Phone Number</mat-label>
+          <input matInput formControlName="phoneNumber" type="tel" placeholder="Enter your phone number">
+          <mat-icon matPrefix>phone</mat-icon>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Password</mat-label>
+          <input matInput [type]="hidePassword ? 'password' : 'text'" formControlName="password" placeholder="Create a password">
+          <mat-icon matPrefix>lock</mat-icon>
+          <button mat-icon-button matSuffix (click)="hidePassword = !hidePassword" type="button" [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hidePassword">
+            <mat-icon>{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
+          </button>
+          <mat-error *ngIf="signupForm.get('password')?.hasError('required')">
+            Password is required
+          </mat-error>
+          <mat-error *ngIf="signupForm.get('password')?.hasError('minlength')">
+            Password must be at least 6 characters
+          </mat-error>
+        </mat-form-field>
+
+        <button mat-flat-button type="submit" class="submit-btn" [disabled]="signupForm.invalid">
+          Sign Up
+        </button>
+      </form>
+    </mat-card-content>
+    <mat-card-actions class="d-flex justify-content-center">
+      <span>Already have an account? <a routerLink="/login">Log in here</a></span>
+    </mat-card-actions>
+  </mat-card>
+</div>

@@ -1,0 +1,50 @@
+## --- .NET Core / Visual Studio ---
+bin/
+obj/
+*.user
+*.suo
+.vs/
+
+## --- Node / Frontend (Angular & React) ---
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+## --- Angular Specific ---
+.angular/
+dist/
+
+## --- React Specific (Vite / CRA) ---
+build/
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+## --- IDEs and System Files ---
+.vscode/
+.DS_Store
+Thumbs.db
+## --- .NET MAUI / Xamarin Specific ---
+# Ignore device-specific build outputs
+AppPackages/
+BundleArtifacts/
+FPublish/
+
+# Windows-specific app package folders
+_pkg/
+
+# Mac/iOS temporary build folders
+*.content/
+*.DesignTime.Cache.bin
+
+# Android-specific signing & cache files
+*.apk
+*.aab
+*.keystore
+!public.keystore
+
+# Device link logs
+.metadata/

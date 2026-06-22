@@ -1,0 +1,72 @@
+<div class="premium-magazines-container">
+  <!-- Header Section -->
+  <div class="header-section text-center mb-5">
+    <div class="badge-pill mb-3 mx-auto">
+      <mat-icon class="me-1" style="font-size: 16px; width: 16px; height: 16px;">auto_awesome</mat-icon>
+      Premium Collection
+    </div>
+    <h2 class="display-5 fw-bold text-gradient-primary mb-2">My Tour Magazines</h2>
+    <p class="text-muted fs-5">Relive your most precious travel memories through our beautifully crafted digital magazines.</p>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="d-flex flex-column align-items-center justify-content-center py-5">
+    <div class="premium-spinner mb-3"></div>
+    <p class="text-muted fw-medium">Curating your memories...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="errorMessage && !isLoading" class="premium-alert error-alert mx-auto mb-4">
+    <mat-icon class="alert-icon">error_outline</mat-icon>
+    <div class="alert-content">
+      <h5 class="mb-1 fw-bold">Oops! Something went wrong</h5>
+      <p class="mb-0 text-muted">{{ errorMessage }}</p>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="completedPackages.length === 0 && !isLoading && !errorMessage" class="empty-state-container mx-auto text-center py-5">
+    <div class="empty-state-icon-bg mx-auto mb-4">
+      <mat-icon class="empty-state-icon text-gradient-primary">menu_book</mat-icon>
+    </div>
+    <h3 class="fw-bold mb-2">No Magazines Yet</h3>
+    <p class="text-muted mb-0 px-md-5">Your personalized tour magazines will automatically appear here once you complete your extraordinary journeys with us.</p>
+  </div>
+
+  <!-- Magazines Grid -->
+  <div *ngIf="completedPackages.length > 0 && !isLoading" class="row g-4 justify-content-center">
+    <div *ngFor="let pkg of completedPackages" class="col-12 col-md-6 col-xl-4">
+      <div class="magazine-card">
+        <!-- Card Image / Banner (Abstract Gradient) -->
+        <div class="magazine-card-banner">
+          <div class="overlay"></div>
+          <div class="banner-content">
+            <span class="package-code"><mat-icon class="me-1">tag</mat-icon>{{pkg.packageCode}}</span>
+            <div class="duration-badge">
+              <mat-icon class="me-1">schedule</mat-icon>
+              {{pkg.durationDays}} Days, {{pkg.durationNight}} Nights
+            </div>
+          </div>
+        </div>
+
+        <!-- Card Body -->
+        <div class="magazine-card-body">
+          <h4 class="package-title">{{pkg.packageTitle}}</h4>
+          <p class="card-text text-muted mb-4">A complete visual and textual journey through your {{pkg.durationDays}}-day adventure.</p>
+          
+          <button class="btn-premium-download w-100" 
+                  (click)="downloadMagazine(pkg.packageId, pkg.packageCode)"
+                  [disabled]="isDownloadingMagazine[pkg.packageId]">
+            <span class="d-flex align-items-center justify-content-center gap-2" *ngIf="!isDownloadingMagazine[pkg.packageId]">
+              <mat-icon>menu_book</mat-icon> Open Digital Magazine
+            </span>
+            <span class="d-flex align-items-center justify-content-center gap-2" *ngIf="isDownloadingMagazine[pkg.packageId]">
+              <div class="spinner-border spinner-border-sm" role="status"></div>
+              Generating...
+            </span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
