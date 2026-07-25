@@ -70,7 +70,6 @@ Travel-Solution/
 ├── MAUIFrontEnd/            # .NET MAUI Blazor Hybrid multi-platform mobile app
 ├── Travel Solution/         # ASP.NET Core Web API solution files & backend modules
 ├── APP Password.txt         # Configuration / Mail service keys (dev reference)
-└── fix_build.bat            # Automated workspace build & repair script
 ```
 
 ---
