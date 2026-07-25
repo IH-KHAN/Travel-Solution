@@ -69,7 +69,7 @@ Travel-Solution/
 ├── ReactFrontend/           # React + Vite client portal (Customer & Booking)
 ├── MAUIFrontEnd/            # .NET MAUI Blazor Hybrid multi-platform mobile app
 ├── Travel Solution/         # ASP.NET Core Web API solution files & backend modules
-├── APP Password.txt         # Configuration / Mail service keys (dev reference)
+└── APP Password.txt         # Configuration / Mail service keys (dev reference)
 ```
 
 ---
